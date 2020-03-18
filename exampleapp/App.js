@@ -1,11 +1,13 @@
-import React, { Component } from 'react';
+import * as React from 'react';
 import {
   Platform,
   StyleSheet,
   Text,
   View,
+  Modal,
   ScrollView,
   Switch,
+  Image,
   TouchableWithoutFeedback,
   TouchableOpacity,
   ActivityIndicator,
@@ -13,12 +15,12 @@ import {
   LayoutAnimation,
   FlatList,
 } from 'react-native';
-import SectionedMultiSelect from 'react-native-sectioned-multi-select';
-import Icon from 'react-native-vector-icons/MaterialIcons';
-import {
-  ToggleAll,
+import SectionedMultiSelect, {
+  useSectionedMultiSelect,
   SMSContext,
 } from 'react-native-sectioned-multi-select/lib/sectioned-multi-select';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+
 import { RowItem } from 'react-native-sectioned-multi-select/lib/components';
 
 const img = require('./z.jpg');
@@ -33,19 +35,19 @@ const items = [
     children: [
       {
         title: 'Apple',
-        id: 10,
+        id: 0,
       },
       {
         title: 'Strawberry',
-        id: 11,
+        id: 1,
       },
       {
         title: 'Pineapple',
-        id: 13,
+        id: 2,
       },
       {
         title: 'Banana',
-        id: 14,
+        id: 3,
       },
       {
         title: 'Wátermelon',
@@ -296,7 +298,302 @@ const Toggle = (props) => (
   </TouchableWithoutFeedback>
 );
 
-export default class App extends Component {
+const customIconRenderer = ({ name, size = 18, style }) => {
+  // flatten the styles
+  const flat = StyleSheet.flatten(style);
+  // remove out the keys that aren't accepted on View
+  const { color, fontSize, ...styles } = flat;
+
+  let iconComponent;
+  // the colour in the url on this site has to be a hex w/o hash
+  const iconColor = color && color.substr(0, 1) === '#' ? `/${color.substr(1)}/` : '/';
+
+  const Search = (
+    <Image
+      source={{ uri: `https://png.icons8.com${iconColor}ios/search/` }}
+      style={{ width: size, height: size }}
+    />
+  );
+  const Down = (
+    <Image
+      source={{ uri: `https://png.icons8.com${iconColor}ios/down/` }}
+      style={{ width: size, height: size }}
+    />
+  );
+  const Up = (
+    <Image
+      source={{ uri: `https://png.icons8.com${iconColor}ios/up/` }}
+      style={{ width: size, height: size }}
+    />
+  );
+  const Close = (
+    <Image
+      source={{ uri: `https://png.icons8.com/${iconColor}ios/multiply/` }}
+      style={{ width: size, height: size }}
+    />
+  );
+
+  const Check = (
+    <Image
+      source={{ uri: `https://png.icons8.com/${iconColor}android/checkmark/` }}
+      style={{ width: size / 1.5, height: size / 1.5 }}
+    />
+  );
+  const Cancel = (
+    <Image
+      source={{ uri: `https://png.icons8.com/${iconColor}ios/cancel/` }}
+      style={{ width: size, height: size }}
+    />
+  );
+
+  switch (name) {
+    case 'search':
+      iconComponent = Search;
+      break;
+    case 'keyboard-arrow-up':
+      iconComponent = Up;
+      break;
+    case 'keyboard-arrow-down':
+      iconComponent = Down;
+      break;
+    case 'close':
+      iconComponent = Close;
+      break;
+    case 'check':
+      iconComponent = Check;
+      break;
+    case 'cancel':
+      iconComponent = Cancel;
+      break;
+    default:
+      iconComponent = null;
+      break;
+  }
+  return <View style={styles}>{iconComponent}</View>;
+};
+
+const ZApp = () => {
+  const [state, _setState] = React.useState({
+    loading: false,
+    selectedItems2: [],
+    selectedItemObjects: [],
+    currentItems: [],
+    showDropDowns: false,
+    single: false,
+    readOnlyHeadings: false,
+    highlightChildren: false,
+    selectChildren: false,
+    hideChipRemove: false,
+    hasErrored: false,
+  });
+  const setState = (newState) => _setState({ ...state, ...newState });
+  const termId = 100;
+  const maxItems = 5;
+  const onSelectedItemObjectsChange = (objs) => setState({ selectedItemObjects: objs });
+  const [selectedItems1, setSelectedItems1] = React.useState([1]);
+
+  const onSelectedItemsChange = (items) => {
+    // setSelectedItems1(items);
+    console.log('selected items changee!', items);
+  };
+
+  const SMSState = useSectionedMultiSelect({
+    items,
+    displayKey: 'title',
+    uniqueKey: 'id',
+    iconKey: 'icon',
+    subKey: 'children',
+    onSelectedItemsChange: onSelectedItemsChange,
+    modalWithTouchable: true,
+    modalWithSafeAreaView: true,
+    iconRenderer: customIconRenderer,
+    selectedItems: selectedItems1,
+    showDropDowns: state.showDropDowns,
+    single: state.single,
+    readOnlyHeadings: state.readOnlyHeadings,
+    expandDropDowns: state.expandDropDowns,
+    highlightChildren: state.highlightChildren,
+    selectChildren: state.selectChildren,
+    hideChipRemove: state.hideChipRemove,
+  });
+  const {
+    // selectedItems,
+    Search: SearchBox,
+    SelectModal,
+    renderItems,
+    _renderControls: Controls,
+    Items,
+    _renderSelector: Selector,
+    _renderChips: Chips,
+    _renderHeader: Header,
+    _selectAllItems,
+    _removeAllItems,
+    _toggleItem,
+    _checkIsParent,
+    _findItem,
+    _displaySelectedItems,
+    subKey,
+    displayKey,
+    selectedItems,
+    getModalProps,
+    colors,
+  } = SMSState;
+
+  const onSwitchToggle = (k) => {
+    const v = !state[k];
+    setState({ [k]: v });
+  };
+  const customChip = ({ text, onPress, id }) => (
+    <View
+      key={id}
+      style={{
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        alignSelf: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: 6,
+        paddingVertical: 4,
+        marginHorizontal: 2,
+      }}
+    >
+      <Text style={{ color: 'grey', fontWeight: 'bold' }}>{text}</Text>
+      <TouchableOpacity style={{ marginLeft: 4 }} onPress={onPress}>
+        <Icon name="close" color="grey" />
+      </TouchableOpacity>
+    </View>
+  );
+
+  return (
+    <ScrollView
+      keyboardShouldPersistTaps="always"
+      style={{ backgroundColor: '#f8f8f8' }}
+      contentContainerStyle={styles.container}
+    >
+      <Text style={styles.welcome}>React native sectioned multi select example.</Text>
+      <React.Fragment>
+        <SMSContext.Provider value={SMSState}>
+          <Chips />
+          <SelectModal>
+            <React.Fragment>
+              <Header />
+              <SearchBox />
+              <View style={{ height: 50, borderBottomWidth: 1, borderBottomColor: 'lightgrey' }}>
+                {/*
+                      showing the chips inside the SmsModal
+                      in a horizontal ScrollView,
+                      with a select/remove all button
+                    */}
+                <ScrollView
+                  horizontal
+                  contentContainerStyle={{
+                    flexDirection: 'row',
+                    flexWrap: 'nowrap',
+                    paddingHorizontal: 10,
+                  }}
+                >
+                  <TouchableOpacity
+                    style={{
+                      justifyContent: 'center',
+                      height: 24,
+                      borderWidth: 0,
+                      borderRadius: 20,
+                      paddingHorizontal: 10,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      alignSelf: 'center',
+                      flex: 1,
+                      backgroundColor: colors.primary,
+                    }}
+                    onPress={selectedItems.length ? _removeAllItems : _selectAllItems}
+                  >
+                    <Text style={{ color: 'white', fontWeight: 'bold' }}>
+                      {selectedItems.length ? 'Remove' : 'Select'} all
+                    </Text>
+                  </TouchableOpacity>
+
+                  <View style={{ flex: 1, flexDirection: 'row' }}>
+                    {selectedItems.map((id) => {
+                      const item = _findItem(id);
+                      const isParent = _checkIsParent(item)
+                      if (!item || !item[displayKey]) return null;
+                      // if (item[subKey] && item[subKey].length) return null;
+                      return customChip({
+                        id: id,
+                        text: item[displayKey],
+                        onPress: () => _toggleItem(item, isParent),
+                      });
+                    })}
+                  </View>
+                </ScrollView>
+              </View>
+
+              <Items
+                flatListProps={{
+                  initialNumToRender: 2,
+                  // renderItem: ({ item }) => (
+                  //   <TouchableOpacity style={{padding: 5}} onPress={() => _toggleItem(item, true)}>
+                  //     <Text>{item.title}</Text>
+                  //   </TouchableOpacity>
+                  // ),
+                }}
+              />
+              <Controls />
+            </React.Fragment>
+          </SelectModal>
+          <Selector />
+        </SMSContext.Provider>
+      </React.Fragment>
+
+      <View>
+        <View style={styles.border}>
+          <Text style={styles.heading}>Settings</Text>
+        </View>
+        <Toggle name="Single" onPress={() => onSwitchToggle('single')} val={state.single} />
+        <Toggle
+          name="Read only headings"
+          onPress={() => onSwitchToggle('readOnlyHeadings')}
+          val={state.readOnlyHeadings}
+        />
+        <Toggle
+          name="Expand dropdowns"
+          onPress={() => onSwitchToggle('expandDropDowns')}
+          val={state.expandDropDowns}
+          disabled={!state.showDropDowns}
+        />
+        <Toggle
+          name="Show dropdown toggles"
+          onPress={() => onSwitchToggle('showDropDowns')}
+          val={state.showDropDowns}
+        />
+        <Toggle
+          name="Auto-highlight children"
+          onPress={() => onSwitchToggle('highlightChildren')}
+          val={state.highlightChildren}
+          disabled={state.selectChildren}
+        />
+        <Toggle
+          name="Auto-select children"
+          onPress={() => onSwitchToggle('selectChildren')}
+          disabled={state.highlightChildren}
+          val={state.selectChildren}
+        />
+        <Toggle
+          name="Hide Chip Remove Buttons"
+          onPress={() => onSwitchToggle('hideChipRemove')}
+          val={state.hideChipRemove}
+        />
+        <TouchableWithoutFeedback onPress={() => console.log('remove all items')}>
+          <View style={styles.switch}>
+            <Text style={styles.label}>Remove All</Text>
+          </View>
+        </TouchableWithoutFeedback>
+      </View>
+    </ScrollView>
+  );
+};
+
+class App extends React.Component {
   constructor() {
     super();
     this.state = {
@@ -472,7 +769,7 @@ export default class App extends Component {
     this.setState({ currentItems: this.state.selectedItems });
   };
   onCancel = () => {
-    this.SectionedMultiSelect._removeAllItems();
+    // this.SectionedMultiSelect._removeAllItems();
 
     this.setState({
       selectedItems: this.state.currentItems,
@@ -534,8 +831,7 @@ export default class App extends Component {
     </View>
   );
 
-  handleAddSearchTerm = () => {
-    const searchTerm = this.SectionedMultiSelect._getSearchTerm();
+  handleAddSearchTerm = (searchTerm, submit) => {
     const id = (this.termId += 1);
     if (
       searchTerm.length &&
@@ -546,7 +842,7 @@ export default class App extends Component {
         items: [...(prevState.items || []), newItem],
       }));
       this.onSelectedItemsChange([...this.state.selectedItems, id]);
-      this.SectionedMultiSelect._submitSelection();
+      submit();
     }
   };
 
@@ -575,19 +871,19 @@ export default class App extends Component {
     //       .join('')}`
     //   : 'Select a fruit';
   };
-  searchAdornment = (searchTerm) =>
+  searchAdornment = (searchTerm, submit) =>
     searchTerm.length ? (
       <TouchableOpacity
         style={{ alignItems: 'center', justifyContent: 'center' }}
-        onPress={this.handleAddSearchTerm}
+        onPress={() => this.handleAddSearchTerm(searchTerm, submit)}
       >
         <View>
           <Icon size={18} style={{ marginHorizontal: 15 }} name="add" />
         </View>
       </TouchableOpacity>
     ) : null;
-  onToggleSelector = (toggled) => {
-    console.log('selector is ', toggled ? 'open' : 'closed');
+  onToggleSelect = (toggled) => {
+    console.log('select is ', toggled ? 'open' : 'closed');
   };
   customChipsRenderer = (props) => {
     console.log('props', props);
@@ -643,329 +939,458 @@ export default class App extends Component {
 
   getDisplayText = (item) => (item.title.en ? item.title.en : item.title);
 
-  customChip = ({ text, onPress,  }) => (
-    <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 8, paddingVertical: 4}}>
-    <Text style={{color: 'grey', fontWeight: 'bold'}}>{text}</Text>
-    <TouchableOpacity style={{marginLeft: 4}} onPress={onPress}>
-      <Icon name="close" color="grey"/>
-    </TouchableOpacity>
-      </View>
+  customChip = ({ text, onPress, id }) => (
+    <View
+      key={id}
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        backgroundColor: '#dadada',
+        marginRight: 6,
+      }}
+    >
+      <Text style={{ color: 'grey', fontWeight: 'bold' }}>{text}</Text>
+      <TouchableOpacity style={{ marginLeft: 4 }} onPress={onPress}>
+        <Icon name="close" color="grey" />
+      </TouchableOpacity>
+    </View>
   );
 
   render() {
-    return (
-      <SectionedMultiSelect
-        items={this.state.items}
-        ref={(SectionedMultiSelect) => (this.SectionedMultiSelect = SectionedMultiSelect)}
-        uniqueKey="id"
-        subKey="children"
-        displayKey="title"
-        iconKey="icon"
-        // autoFocus
-        // subDisplayKey={this.getDisplayText}
-        // showCancelButton
-        // headerComponent={this.SelectOrRemoveAll}
-        stickyFooterComponent={
-          <View style={{ padding: 15 }}>
-            <Text style={{ textAlign: 'center' }}>Hi</Text>
-          </View>
-        }
-        // hideConfirm
-        loading={this.state.loading}
-        // filterItems={this.filterItems}
-        // alwaysShowSelectText
-        // customChipsRenderer={this.customChipsRenderer}
-        chipsPosition="top"
-        chipComponent={this.customChip}
-        searchAdornment={(searchTerm) => this.searchAdornment(searchTerm)}
-        renderSelectText={this.renderSelectText}
-        // noResultsComponent={this.noResults}
-        loadingComponent={
-          <Loading hasErrored={this.state.hasErrored} fetchCategories={this.fetchCategories} />
-        }
-        selectedIconComponent={
-          <Icon
-            name="check"
-            style={{
-              fontSize: 16,
-              color: 'black',
-              // paddingHorizontal: 10,
-            }}
-          />
-        }
-        // chipRemoveIconComponent={
-        //   <Icon
-        //     style={{
-        //       fontSize: 18,
-        //       marginHorizontal: 6,
-        //     }}
-        //   >
-        //     cancel
-        //   </Icon>
-        // }
-        //  cancelIconComponent={<Text style={{color:'white'}}>Cancel</Text>}
-        hideChipRemove={this.state.hideChipRemove}
-        showDropDowns={this.state.showDropDowns}
-        modalWithSafeAreaView={true}
-        expandDropDowns={this.state.expandDropDowns}
-        animateDropDowns={false}
-        readOnlyHeadings={this.state.readOnlyHeadings}
-        single={this.state.single}
-        // showRemoveAll
-        selectChildren={this.state.selectChildren}
-        highlightChildren={this.state.highlightChildren}
-        //  hideSearch
-        //  itemFontFamily={fonts.boldCondensed}
-        onSelectedItemsChange={this.onSelectedItemsChange}
-        onSelectedItemObjectsChange={this.onSelectedItemObjectsChange}
-        onCancel={this.onCancel}
-        onConfirm={this.onConfirm}
-        selectedItems={this.state.selectedItems}
-        colors={{ primary: 'crimson' }}
-        itemNumberOfLines={3}
-        selectLabelNumberOfLines={3}
-        parentChipsRemoveChildren={this.state.parentChipsRemoveChildren}
-        styles={{
-          // chipText: {
-          //   maxWidth: Dimensions.get('screen').width - 90,
-          // },
-          // itemText: {
-          //   color: this.state.selectedItems.length ? 'black' : 'lightgrey'
-          // },
-          scrollView: {
-            paddingHorizontal: 0,
-          },
-          item: {
-            paddingHorizontal: 20,
-          },
-          subItem: {
-            paddingHorizontal: 10,
-          },
-          parentChipText: {
-            fontWeight: 'bold',
-          },
-          removeAllChipContainer: {
-            backgroundColor: 'grey',
-          },
-          removeAllChipText: {
-            color: 'white',
-          },
-          selectToggle: {
-            borderWidth: 1,
-            borderRadius: 8,
-            borderColor: 'silver',
-            paddingHorizontal: 16,
-            paddingVertical: 8,
-          },
-          selectedItem: {
-            backgroundColor: '#f8f8f8',
-          },
+    // const {
+    //   selectedItems,
+    //   _renderSearch: SearchBox,
+    //   _renderModal: SmsModal,
+    //   _renderControls: Controls,
+    //   _ && renderItems.map(item => <View><Text>{item.title}</Text></View>): Items,
+    //   _renderSelector: Selector,
+    //   _renderChips: Chips,
+    //   _renderHeader: Header,
+    //   _selectAllItems,
+    //   _removeAllItems,
+    //   _toggleItem,
+    //   _displaySelectedItems,
+    //   subKey,
+    //   displayKey,
+    //   colors,
+    // } = useSectionedMultiSelect({
+    //   items: this.state.items,
+    //   displayKey: 'title',
+    //   uniqueKey: 'id',
+    //   iconKey: 'icon',
+    //   subKey: 'children',
+    //   onSelectedItemsChange: this.onSelectedItemsChange,
+    //   onSelectedItemObjectsChange: this.onSelectedItemObjectsChange,
+    //   onCancel: this.onCancel,
+    //   onConfirm: this.onConfirm,
+    //   selectedItems: this.state.selectedItems,
+    // });
 
-          selectedItemText: {
-            color: 'black',
-          },
-          selectedSubItemText: {
-            color: 'crimson',
-          },
-          // subItemText: {
-          //   color: this.state.selectedItems.length ? 'black' : 'lightgrey'
-          // },
-          selectedSubItem: {
-            backgroundColor: '#dadada',
-          },
-        }}
-        cancelIconComponent={<Icon size={20} name="close" style={{ color: 'white' }} />}
-      >
-        <ScrollView
-          keyboardShouldPersistTaps="always"
-          style={{ backgroundColor: '#f8f8f8' }}
-          contentContainerStyle={styles.container}
+    return (
+      <View>
+        <SectionedMultiSelect
+          items={this.state.items}
+          getItem={(item) => `item--${item.id}`}
+          getChildren={(item) => item.children}
+          getChildItem={(item) => `child--${item.id}`}
+          uniqueKey="id"
+          subKey="children"
+          displayKey="title"
+          iconKey="icon"
+          // autoFocus
+          // subDisplayKey={this.getDisplayText}
+          // showCancelButton
+          // headerComponent={this.SelectOrRemoveAll}
+          stickyFooterComponent={
+            <View style={{ padding: 15 }}>
+              <Text style={{ textAlign: 'center' }}>Hi</Text>
+            </View>
+          }
+          // hideConfirm
+          loading={this.state.loading}
+          // filterItems={this.filterItems}
+          // alwaysShowSelectText
+          // customChipsRenderer={this.customChipsRenderer}
+          chipsPosition="top"
+          chipComponent={this.customChip}
+          searchAdornment={this.searchAdornment}
+          renderSelectText={this.renderSelectText}
+          // noResultsComponent={this.noResults}
+          loadingComponent={
+            <Loading hasErrored={this.state.hasErrored} fetchCategories={this.fetchCategories} />
+          }
+          selectedIconComponent={
+            <Icon
+              name="check"
+              style={{
+                fontSize: 16,
+                color: 'black',
+                // paddingHorizontal: 10,
+              }}
+            />
+          }
+          // chipRemoveIconComponent={
+          //   <Icon
+          //     style={{
+          //       fontSize: 18,
+          //       marginHorizontal: 6,
+          //     }}
+          //   >
+          //     cancel
+          //   </Icon>
+          // }
+          //  cancelIconComponent={<Text style={{color:'white'}}>Cancel</Text>}
+          hideChipRemove={this.state.hideChipRemove}
+          showDropDowns={this.state.showDropDowns}
+          modalWithSafeAreaView={true}
+          expandDropDowns={this.state.expandDropDowns}
+          animateDropDowns={false}
+          readOnlyHeadings={this.state.readOnlyHeadings}
+          single={this.state.single}
+          // showRemoveAll
+          selectChildren={this.state.selectChildren}
+          highlightChildren={this.state.highlightChildren}
+          //  hideSearch
+          //  itemFontFamily={fonts.boldCondensed}
+          onSelectedItemsChange={this.onSelectedItemsChange}
+          onSelectedItemObjectsChange={this.onSelectedItemObjectsChange}
+          onCancel={this.onCancel}
+          onConfirm={this.onConfirm}
+          selectedItems={this.state.selectedItems}
+          colors={{ primary: 'crimson' }}
+          itemNumberOfLines={3}
+          selectLabelNumberOfLines={3}
+          parentChipsRemoveChildren={this.state.parentChipsRemoveChildren}
+          styles={{
+            // chipText: {
+            //   maxWidth: Dimensions.get('screen').width - 90,
+            // },
+            // itemText: {
+            //   color: this.state.selectedItems.length ? 'black' : 'lightgrey'
+            // },
+            scrollView: {
+              paddingHorizontal: 0,
+            },
+            item: {
+              paddingHorizontal: 20,
+            },
+            subItem: {
+              paddingHorizontal: 10,
+            },
+            parentChipText: {
+              fontWeight: 'bold',
+            },
+            removeAllChipContainer: {
+              backgroundColor: 'grey',
+            },
+            removeAllChipText: {
+              color: 'white',
+            },
+            selectToggle: {
+              borderWidth: 1,
+              borderRadius: 8,
+              borderColor: 'silver',
+              paddingHorizontal: 16,
+              paddingVertical: 8,
+              margin: 36,
+            },
+            selectedItem: {
+              backgroundColor: '#f8f8f8',
+            },
+
+            selectedItemText: {
+              color: 'black',
+            },
+            selectedSubItemText: {
+              color: 'crimson',
+            },
+            // subItemText: {
+            //   color: this.state.selectedItems.length ? 'black' : 'lightgrey'
+            // },
+            selectedSubItem: {
+              backgroundColor: '#dadada',
+            },
+          }}
+          cancelIconComponent={<Icon size={20} name="close" style={{ color: 'white' }} />}
+        />
+        <SectionedMultiSelect
+          items={this.state.items}
+          uniqueKey="id"
+          subKey="children"
+          displayKey="title"
+          iconKey="icon"
+          // autoFocus
+          // subDisplayKey={this.getDisplayText}
+          // showCancelButton
+          // headerComponent={this.SelectOrRemoveAll}
+          stickyFooterComponent={
+            <View style={{ padding: 15 }}>
+              <Text style={{ textAlign: 'center' }}>Hi</Text>
+            </View>
+          }
+          // hideConfirm
+          loading={this.state.loading}
+          // filterItems={this.filterItems}
+          // alwaysShowSelectText
+          // customChipsRenderer={this.customChipsRenderer}
+          chipsPosition="top"
+          chipComponent={this.customChip}
+          searchAdornment={this.searchAdornment}
+          renderSelectText={this.renderSelectText}
+          // noResultsComponent={this.noResults}
+          loadingComponent={
+            <Loading hasErrored={this.state.hasErrored} fetchCategories={this.fetchCategories} />
+          }
+          selectedIconComponent={
+            <Icon
+              name="check"
+              style={{
+                fontSize: 16,
+                color: 'black',
+                // paddingHorizontal: 10,
+              }}
+            />
+          }
+          // chipRemoveIconComponent={
+          //   <Icon
+          //     style={{
+          //       fontSize: 18,
+          //       marginHorizontal: 6,
+          //     }}
+          //   >
+          //     cancel
+          //   </Icon>
+          // }
+          //  cancelIconComponent={<Text style={{color:'white'}}>Cancel</Text>}
+          hideChipRemove={this.state.hideChipRemove}
+          showDropDowns={this.state.showDropDowns}
+          modalWithSafeAreaView={true}
+          expandDropDowns={this.state.expandDropDowns}
+          animateDropDowns={false}
+          readOnlyHeadings={this.state.readOnlyHeadings}
+          single={this.state.single}
+          // showRemoveAll
+          selectChildren={this.state.selectChildren}
+          highlightChildren={this.state.highlightChildren}
+          //  hideSearch
+          //  itemFontFamily={fonts.boldCondensed}
+          onSelectedItemsChange={this.onSelectedItemsChange}
+          onSelectedItemObjectsChange={this.onSelectedItemObjectsChange}
+          onCancel={this.onCancel}
+          onConfirm={this.onConfirm}
+          selectedItems={this.state.selectedItems}
+          colors={{ primary: 'crimson' }}
+          itemNumberOfLines={3}
+          selectLabelNumberOfLines={3}
+          parentChipsRemoveChildren={this.state.parentChipsRemoveChildren}
+          styles={{
+            // chipText: {
+            //   maxWidth: Dimensions.get('screen').width - 90,
+            // },
+            // itemText: {
+            //   color: this.state.selectedItems.length ? 'black' : 'lightgrey'
+            // },
+            scrollView: {
+              paddingHorizontal: 0,
+            },
+            item: {
+              paddingHorizontal: 20,
+            },
+            subItem: {
+              paddingHorizontal: 10,
+            },
+            parentChipText: {
+              fontWeight: 'bold',
+            },
+            removeAllChipContainer: {
+              backgroundColor: 'grey',
+            },
+            removeAllChipText: {
+              color: 'white',
+            },
+            selectToggle: {
+              borderWidth: 1,
+              borderRadius: 8,
+              borderColor: 'silver',
+              paddingHorizontal: 16,
+              paddingVertical: 8,
+            },
+            selectedItem: {
+              backgroundColor: '#f8f8f8',
+            },
+
+            selectedItemText: {
+              color: 'black',
+            },
+            selectedSubItemText: {
+              color: 'crimson',
+            },
+            // subItemText: {
+            //   color: this.state.selectedItems.length ? 'black' : 'lightgrey'
+            // },
+            selectedSubItem: {
+              backgroundColor: '#dadada',
+            },
+          }}
+          cancelIconComponent={<Icon size={20} name="close" style={{ color: 'white' }} />}
         >
-          <Text style={styles.welcome}>React native sectioned multi select example.</Text>
           <SMSContext.Consumer>
             {({
               selectedItems,
               _renderSearch: SearchBox,
-              _renderModal: SmsModal,
+              SelectModal,
               _renderControls: Controls,
-              _renderItems: Items,
+              Items,
               _renderSelector: Selector,
               _renderChips: Chips,
               _renderHeader: Header,
               _selectAllItems,
+              selectIsVisible,
+              _findItem,
               _removeAllItems,
               _toggleItem,
+              getModalProps,
               _displaySelectedItems,
               subKey,
               displayKey,
               colors,
             }) => (
-              <React.Fragment>
-                <SmsModal>
-                  <React.Fragment>
-                    <Header />
-                 { /*   <SearchBox /> */}
-                    <View
-                      style={{ height: 50, borderBottomWidth: 1, borderBottomColor: 'lightgrey' }}
-                    >
-                      {/*
-                      showing the chips inside the SmsModal
+              <ScrollView
+                keyboardShouldPersistTaps="always"
+                style={{ backgroundColor: '#f8f8f8' }}
+                contentContainerStyle={styles.container}
+              >
+                <Text style={styles.welcome}>React native sectioned multi select example.</Text>
+                <React.Fragment>
+                  <Chips />
+                  <Modal {...getModalProps()}>
+                    <SelectModal>
+                      <React.Fragment>
+                        <Header />
+                        {/*   <SearchBox /> */}
+                        <View
+                          style={{
+                            height: 50,
+                            borderBottomWidth: 1,
+                            borderBottomColor: 'lightgrey',
+                          }}
+                        >
+                          {/*
+                      showing the chips inside the SelectModal
                       in a horizontal ScrollView,
                       with a select/remove all button
                     */}
-                      <ScrollView
-                        horizontal
-                        contentContainerStyle={{
-                          flexDirection: 'row',
-                          flexWrap: 'nowrap',
-                          paddingHorizontal: 10,
-                        }}
-                      >
-                        <TouchableOpacity
-                          style={{
-                            justifyContent: 'center',
-                            height: 24,
-                            borderWidth: 0,
-                            borderRadius: 20,
-                            paddingHorizontal: 10,
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            alignSelf: 'center',
-                            flex: 1,
-                            backgroundColor: colors.primary,
-                          }}
-                          onPress={selectedItems.length ? _removeAllItems : _selectAllItems}
-                        >
-                          <Text style={{ color: 'white', fontWeight: 'bold' }}>
-                            {selectedItems.length ? 'Remove' : 'Select'} all
-                          </Text>
-                        </TouchableOpacity>
-   
+                          <ScrollView
+                            horizontal
+                            contentContainerStyle={{
+                              flexDirection: 'row',
+                              flexWrap: 'nowrap',
+                              paddingHorizontal: 10,
+                            }}
+                          >
+                            <TouchableOpacity
+                              style={{
+                                justifyContent: 'center',
+                                height: 24,
+                                borderWidth: 0,
+                                borderRadius: 20,
+                                paddingHorizontal: 10,
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                alignSelf: 'center',
+                                flex: 1,
+                                backgroundColor: colors.primary,
+                              }}
+                              onPress={selectedItems.length ? _removeAllItems : _selectAllItems}
+                            >
+                              <Text style={{ color: 'white', fontWeight: 'bold' }}>
+                                {selectedItems.length ? 'Remove' : 'Select'} all
+                              </Text>
+                            </TouchableOpacity>
+
                             <View style={{ flex: 1, flexDirection: 'row' }}>
                               {selectedItems.map((id) => {
-                                const item = this.SectionedMultiSelect._findItem(id);
+                                const item = _findItem(id);
 
                                 if (!item || !item[displayKey]) return null;
                                 // if (item[subKey] && item[subKey].length) return null;
                                 return (
                                   <this.customChip
-                                    key={id}
+                                    id={id}
                                     text={item[displayKey]}
                                     onPress={() => _toggleItem(item)}
                                   />
                                 );
                               })}
                             </View>
+                          </ScrollView>
+                        </View>
+                        <Items />
+                        <Controls />
+                      </React.Fragment>
+                    </SelectModal>
+                  </Modal>
+                  <Selector />
+                </React.Fragment>
 
-                      </ScrollView>
+                <View>
+                  <View style={styles.border}>
+                    <Text style={styles.heading}>Settings</Text>
+                  </View>
+                  <Toggle
+                    name="Single"
+                    onPress={() => this.onSwitchToggle('single')}
+                    val={this.state.single}
+                  />
+                  <Toggle
+                    name="Read only headings"
+                    onPress={() => this.onSwitchToggle('readOnlyHeadings')}
+                    val={this.state.readOnlyHeadings}
+                  />
+                  <Toggle
+                    name="Expand dropdowns"
+                    onPress={() => this.onSwitchToggle('expandDropDowns')}
+                    val={this.state.expandDropDowns}
+                    disabled={!this.state.showDropDowns}
+                  />
+                  <Toggle
+                    name="Show dropdown toggles"
+                    onPress={() => this.onSwitchToggle('showDropDowns')}
+                    val={this.state.showDropDowns}
+                  />
+                  <Toggle
+                    name="Auto-highlight children"
+                    onPress={() => this.onSwitchToggle('highlightChildren')}
+                    val={this.state.highlightChildren}
+                    disabled={this.state.selectChildren}
+                  />
+                  <Toggle
+                    name="Auto-select children"
+                    onPress={() => this.onSwitchToggle('selectChildren')}
+                    disabled={this.state.highlightChildren}
+                    val={this.state.selectChildren}
+                  />
+                  <Toggle
+                    name="Hide Chip Remove Buttons"
+                    onPress={() => this.onSwitchToggle('hideChipRemove')}
+                    val={this.state.hideChipRemove}
+                  />
+                  <TouchableWithoutFeedback onPress={() => console.log('remove all items')}>
+                    <View style={styles.switch}>
+                      <Text style={styles.label}>Remove All</Text>
                     </View>
-                    <Items flatListProps={{ initialNumToRender: 2 }} />
-                    <Controls />
-                  </React.Fragment>
-                </SmsModal>
-                <Selector />
-              </React.Fragment>
+                  </TouchableWithoutFeedback>
+                </View>
+              </ScrollView>
             )}
           </SMSContext.Consumer>
-          {/*   <SectionedMultiSelect
-            items={items2}
-            ref={SectionedMultiSelect2 => (this.SectionedMultiSelect2 = SectionedMultiSelect2)}
-            uniqueKey="id"
-            subKey="children"
-            displayKey="title"
-            // showCancelButton
-            // hideSelect={true}
-            selectText={this.state.selectedItems2.length ? 'Select categories' : 'All categories'}
-            noResultsComponent={this.noResults}
-            loadingComponent={
-              <Loading hasErrored={this.state.hasErrored} fetchCategories={this.fetchCategories} />
-            }
-            //  cancelIconComponent={<Text style={{color:'white'}}>Cancel</Text>}
-            showDropDowns={this.state.showDropDowns}
-            expandDropDowns={this.state.expandDropDowns}
-            customLayoutAnimation={LayoutAnimation.Presets.spring}
-            readOnlyHeadings={this.state.readOnlyHeadings}
-            single={this.state.single}
-            showRemoveAll
-            selectChildren={this.state.selectChildren}
-            highlightChildren={this.state.highlightChildren}
-            //  hideSearch
-            //  itemFontFamily={fonts.boldCondensed}
-            onSelectedItemsChange={this.onSelectedItemsChange2}
-            // onSelectedItemObjectsChange={this.onSelectedItemObjectsChange}
-            onCancel={this.onCancel}
-            onConfirm={this.onConfirm}
-            onToggleSelector={this.onToggleSelector}
-            selectedItems={this.state.selectedItems2}
-            styles={{
-              chipText: {
-                maxWidth: Dimensions.get('screen').width - 90,
-              },
-              itemText: {
-                color: this.state.selectedItems2.length ? 'black' : 'lightgrey',
-              },
-              subItemText: {
-                color: this.state.selectedItems2.length ? 'black' : 'lightgrey',
-              },
-              //   cancelButton: {
-              //  //   flex: 6,
-              //   },
-              //   subItem: {
-              //     paddingVertical: 15,
-              //   },
-            }}
-            // numberOfLines={1}
-          /> */}
-          <View>
-            <View style={styles.border}>
-              <Text style={styles.heading}>Settings</Text>
-            </View>
-            <Toggle
-              name="Single"
-              onPress={() => this.onSwitchToggle('single')}
-              val={this.state.single}
-            />
-            <Toggle
-              name="Read only headings"
-              onPress={() => this.onSwitchToggle('readOnlyHeadings')}
-              val={this.state.readOnlyHeadings}
-            />
-            <Toggle
-              name="Expand dropdowns"
-              onPress={() => this.onSwitchToggle('expandDropDowns')}
-              val={this.state.expandDropDowns}
-              disabled={!this.state.showDropDowns}
-            />
-            <Toggle
-              name="Show dropdown toggles"
-              onPress={() => this.onSwitchToggle('showDropDowns')}
-              val={this.state.showDropDowns}
-            />
-            <Toggle
-              name="Auto-highlight children"
-              onPress={() => this.onSwitchToggle('highlightChildren')}
-              val={this.state.highlightChildren}
-              disabled={this.state.selectChildren}
-            />
-            <Toggle
-              name="Auto-select children"
-              onPress={() => this.onSwitchToggle('selectChildren')}
-              disabled={this.state.highlightChildren}
-              val={this.state.selectChildren}
-            />
-            <Toggle
-              name="Hide Chip Remove Buttons"
-              onPress={() => this.onSwitchToggle('hideChipRemove')}
-              val={this.state.hideChipRemove}
-            />
-            <TouchableWithoutFeedback onPress={() => this.SectionedMultiSelect._removeAllItems()}>
-              <View style={styles.switch}>
-                <Text style={styles.label}>Remove All</Text>
-              </View>
-            </TouchableWithoutFeedback>
-          </View>
-        </ScrollView>
-      </SectionedMultiSelect>
+        </SectionedMultiSelect>
+      </View>
     );
   }
 }
+
+export default App;
