@@ -18,10 +18,11 @@ import {
 import SectionedMultiSelect, {
   useSectionedMultiSelect,
   SMSContext,
+  Chip,
+  Items,
 } from 'react-native-sectioned-multi-select/lib/sectioned-multi-select';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
-import { RowItem } from 'react-native-sectioned-multi-select/lib/components';
 
 const img = require('./z.jpg');
 
@@ -271,6 +272,8 @@ const accentMap = {
 };
 const tintColor = '#174A87';
 
+
+
 const Loading = (props) =>
   props.hasErrored ? (
     <TouchableWithoutFeedback onPress={props.fetchCategories}>
@@ -298,6 +301,25 @@ const Toggle = (props) => (
   </TouchableWithoutFeedback>
 );
 
+  const customChip = ({ item, onPress, itemKey, }) => (
+    <View
+      key={itemKey}
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        backgroundColor: '#dadada',
+        marginRight: 6,
+      }}
+    >
+      <Text style={{ color: 'grey', fontWeight: 'bold' }}>{item.title}</Text>
+      <TouchableOpacity style={{ marginLeft: 4 }} onPress={onPress}>
+        <Icon name="close" color="grey" />
+      </TouchableOpacity>
+    </View>
+  )
 const customIconRenderer = ({ name, size = 18, style }) => {
   // flatten the styles
   const flat = StyleSheet.flatten(style);
@@ -412,8 +434,8 @@ const ZApp = () => {
     single: state.single,
     readOnlyHeadings: state.readOnlyHeadings,
     expandDropDowns: state.expandDropDowns,
-    highlightChildren: state.highlightChildren,
-    selectChildren: state.selectChildren,
+    parentsHighlightAllChildren: state.highlightChildren,
+    parentsSelectAllChildren: state.selectChildren,
     hideChipRemove: state.hideChipRemove,
   });
   const {
@@ -443,26 +465,7 @@ const ZApp = () => {
     const v = !state[k];
     setState({ [k]: v });
   };
-  const customChip = ({ text, onPress, id }) => (
-    <View
-      key={id}
-      style={{
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        alignSelf: 'center',
-        justifyContent: 'center',
-        paddingHorizontal: 6,
-        paddingVertical: 4,
-        marginHorizontal: 2,
-      }}
-    >
-      <Text style={{ color: 'grey', fontWeight: 'bold' }}>{text}</Text>
-      <TouchableOpacity style={{ marginLeft: 4 }} onPress={onPress}>
-        <Icon name="close" color="grey" />
-      </TouchableOpacity>
-    </View>
-  );
+
 
   return (
     <ScrollView
@@ -786,7 +789,8 @@ class App extends React.Component {
     // })
     // console.log('parent', id)
     // const selected = this.state.selectedItems.filter(item => item !== id)
-
+    console.log('selected item objects', selectedItemObjects);
+    
     this.setState({ selectedItemObjects });
     // this.setState(prevState => ({
     //   selectedItems: [...prevState.selectedItems.filter(item => item !== id)],
@@ -939,25 +943,7 @@ class App extends React.Component {
 
   getDisplayText = (item) => (item.title.en ? item.title.en : item.title);
 
-  customChip = ({ text, onPress, id }) => (
-    <View
-      key={id}
-      style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        backgroundColor: '#dadada',
-        marginRight: 6,
-      }}
-    >
-      <Text style={{ color: 'grey', fontWeight: 'bold' }}>{text}</Text>
-      <TouchableOpacity style={{ marginLeft: 4 }} onPress={onPress}>
-        <Icon name="close" color="grey" />
-      </TouchableOpacity>
-    </View>
-  );
+
 
   render() {
     // const {
@@ -993,9 +979,9 @@ class App extends React.Component {
       <View>
         <SectionedMultiSelect
           items={this.state.items}
-          getItem={(item) => `item--${item.id}`}
-          getChildren={(item) => item.children}
-          getChildItem={(item) => `child--${item.id}`}
+          getItem={item => `item--${item.id}`}
+          getChildren={item => item.children}
+          getChildItem={item => `child--${item.id}`}
           uniqueKey="id"
           subKey="children"
           displayKey="title"
@@ -1015,12 +1001,15 @@ class App extends React.Component {
           // alwaysShowSelectText
           // customChipsRenderer={this.customChipsRenderer}
           chipsPosition="top"
-          chipComponent={this.customChip}
+          chipComponent={customChip}
           searchAdornment={this.searchAdornment}
           renderSelectText={this.renderSelectText}
           // noResultsComponent={this.noResults}
           loadingComponent={
-            <Loading hasErrored={this.state.hasErrored} fetchCategories={this.fetchCategories} />
+            <Loading
+              hasErrored={this.state.hasErrored}
+              fetchCategories={this.fetchCategories}
+            />
           }
           selectedIconComponent={
             <Icon
@@ -1051,8 +1040,8 @@ class App extends React.Component {
           readOnlyHeadings={this.state.readOnlyHeadings}
           single={this.state.single}
           // showRemoveAll
-          selectChildren={this.state.selectChildren}
-          highlightChildren={this.state.highlightChildren}
+          parentsSelectAllChildren={this.state.selectChildren}
+          parentsHighlightAllChildren={this.state.highlightChildren}
           //  hideSearch
           //  itemFontFamily={fonts.boldCondensed}
           onSelectedItemsChange={this.onSelectedItemsChange}
@@ -1114,10 +1103,15 @@ class App extends React.Component {
               backgroundColor: '#dadada',
             },
           }}
-          cancelIconComponent={<Icon size={20} name="close" style={{ color: 'white' }} />}
+          cancelIconComponent={
+            <Icon size={20} name="close" style={{ color: 'white' }} />
+          }
         />
         <SectionedMultiSelect
           items={this.state.items}
+          getItem={item => `item--${item.id}`}
+          getChildren={item => item.children}
+          getChildItem={item => `child--${item.id}`}
           uniqueKey="id"
           subKey="children"
           displayKey="title"
@@ -1137,12 +1131,15 @@ class App extends React.Component {
           // alwaysShowSelectText
           // customChipsRenderer={this.customChipsRenderer}
           chipsPosition="top"
-          chipComponent={this.customChip}
+          chipComponent={customChip}
           searchAdornment={this.searchAdornment}
           renderSelectText={this.renderSelectText}
           // noResultsComponent={this.noResults}
           loadingComponent={
-            <Loading hasErrored={this.state.hasErrored} fetchCategories={this.fetchCategories} />
+            <Loading
+              hasErrored={this.state.hasErrored}
+              fetchCategories={this.fetchCategories}
+            />
           }
           selectedIconComponent={
             <Icon
@@ -1173,8 +1170,8 @@ class App extends React.Component {
           readOnlyHeadings={this.state.readOnlyHeadings}
           single={this.state.single}
           // showRemoveAll
-          selectChildren={this.state.selectChildren}
-          highlightChildren={this.state.highlightChildren}
+          parentsSelectAllChildren={this.state.selectChildren}
+          parentsHighlightAllChildren={this.state.highlightChildren}
           //  hideSearch
           //  itemFontFamily={fonts.boldCondensed}
           onSelectedItemsChange={this.onSelectedItemsChange}
@@ -1235,7 +1232,9 @@ class App extends React.Component {
               backgroundColor: '#dadada',
             },
           }}
-          cancelIconComponent={<Icon size={20} name="close" style={{ color: 'white' }} />}
+          cancelIconComponent={
+            <Icon size={20} name="close" style={{ color: 'white' }} />
+          }
         >
           <SMSContext.Consumer>
             {({
@@ -1243,7 +1242,6 @@ class App extends React.Component {
               _renderSearch: SearchBox,
               SelectModal,
               _renderControls: Controls,
-              Items,
               _renderSelector: Selector,
               _renderChips: Chips,
               _renderHeader: Header,
@@ -1256,6 +1254,7 @@ class App extends React.Component {
               _displaySelectedItems,
               subKey,
               displayKey,
+              getItemProps,
               colors,
             }) => (
               <ScrollView
@@ -1263,7 +1262,9 @@ class App extends React.Component {
                 style={{ backgroundColor: '#f8f8f8' }}
                 contentContainerStyle={styles.container}
               >
-                <Text style={styles.welcome}>React native sectioned multi select example.</Text>
+                <Text style={styles.welcome}>
+                  React native sectioned multi select example.
+                </Text>
                 <React.Fragment>
                   <Chips />
                   <Modal {...getModalProps()}>
@@ -1304,26 +1305,28 @@ class App extends React.Component {
                                 flex: 1,
                                 backgroundColor: colors.primary,
                               }}
-                              onPress={selectedItems.length ? _removeAllItems : _selectAllItems}
+                              onPress={
+                                selectedItems.length
+                                  ? _removeAllItems
+                                  : _selectAllItems
+                              }
                             >
-                              <Text style={{ color: 'white', fontWeight: 'bold' }}>
+                              <Text
+                                style={{ color: 'white', fontWeight: 'bold' }}
+                              >
                                 {selectedItems.length ? 'Remove' : 'Select'} all
                               </Text>
                             </TouchableOpacity>
 
                             <View style={{ flex: 1, flexDirection: 'row' }}>
-                              {selectedItems.map((id) => {
-                                const item = _findItem(id);
+                              {selectedItems.map(id => {
+                                const item = _findItem(id)
+                                const itemProps = getItemProps({ id })
+                                console.log('customChip itemProps', itemProps)
 
-                                if (!item || !item[displayKey]) return null;
+                                if (!item || !item[displayKey]) return null
                                 // if (item[subKey] && item[subKey].length) return null;
-                                return (
-                                  <this.customChip
-                                    id={id}
-                                    text={item[displayKey]}
-                                    onPress={() => _toggleItem(item)}
-                                  />
-                                );
+                                return <Chip { ...itemProps } />
                               })}
                             </View>
                           </ScrollView>
@@ -1378,7 +1381,16 @@ class App extends React.Component {
                     onPress={() => this.onSwitchToggle('hideChipRemove')}
                     val={this.state.hideChipRemove}
                   />
-                  <TouchableWithoutFeedback onPress={() => console.log('remove all items')}>
+                  <Toggle
+                    name="Parent Chips Remove Children"
+                    onPress={() =>
+                      this.onSwitchToggle('parentChipsRemoveChildren')
+                    }
+                    val={this.state.parentChipsRemoveChildren}
+                  />
+                  <TouchableWithoutFeedback
+                    onPress={() => console.log('remove all items')}
+                  >
                     <View style={styles.switch}>
                       <Text style={styles.label}>Remove All</Text>
                     </View>
@@ -1389,7 +1401,7 @@ class App extends React.Component {
           </SMSContext.Consumer>
         </SectionedMultiSelect>
       </View>
-    );
+    )
   }
 }
 
