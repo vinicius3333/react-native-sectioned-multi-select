@@ -1,4 +1,4 @@
-import * as React from 'react';
+import * as React from 'react'
 import {
   Platform,
   StyleSheet,
@@ -14,17 +14,16 @@ import {
   Dimensions,
   LayoutAnimation,
   FlatList,
-} from 'react-native';
+} from 'react-native'
 import SectionedMultiSelect, {
   useSectionedMultiSelect,
   SMSContext,
   Chip,
   Items,
-} from 'react-native-sectioned-multi-select/lib/sectioned-multi-select';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+} from 'react-native-sectioned-multi-select/lib/sectioned-multi-select'
+import Icon from 'react-native-vector-icons/MaterialIcons'
 
-
-const img = require('./z.jpg');
+const img = require('./z.jpg')
 
 // Sorry for the mess
 
@@ -143,8 +142,8 @@ const items = [
     title: 'No child',
     id: 34,
   },
-];
-console.log(items);
+]
+console.log(items)
 
 // const items2 =
 //   [{
@@ -170,7 +169,7 @@ console.log(items);
 
 //     ],
 //   }]
-const items2 = [];
+const items2 = []
 for (let i = 0; i < 100; i++) {
   items2.push({
     id: i,
@@ -189,7 +188,7 @@ for (let i = 0; i < 100; i++) {
         title: `child 12${i}`,
       },
     ],
-  });
+  })
 }
 
 const styles = StyleSheet.create({
@@ -229,7 +228,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     justifyContent: 'space-between',
   },
-});
+})
 const accentMap = {
   â: 'a',
   Â: 'A',
@@ -269,12 +268,10 @@ const accentMap = {
   Ù: 'U',
   ç: 'c',
   Ç: 'C',
-};
-const tintColor = '#174A87';
+}
+const tintColor = '#174A87'
 
-
-
-const Loading = (props) =>
+const Loading = props =>
   props.hasErrored ? (
     <TouchableWithoutFeedback onPress={props.fetchCategories}>
       <View style={styles.center}>
@@ -285,114 +282,118 @@ const Loading = (props) =>
     <View style={styles.center}>
       <ActivityIndicator size="large" />
     </View>
-  );
+  )
 
-const Toggle = (props) => (
-  <TouchableWithoutFeedback onPress={() => props.onPress(!props.val)} disabled={props.disabled}>
+const Toggle = props => (
+  <TouchableWithoutFeedback
+    onPress={() => props.onPress(!props.val)}
+    disabled={props.disabled}
+  >
     <View style={styles.switch}>
       <Text style={styles.label}>{props.name}</Text>
       <Switch
         trackColor={tintColor}
-        onValueChange={(v) => props.onPress(v)}
+        onValueChange={v => props.onPress(v)}
         value={props.val}
         disabled={props.disabled}
       />
     </View>
   </TouchableWithoutFeedback>
-);
+)
 
-  const customChip = ({ item, onPress, itemKey, }) => (
-    <View
-      key={itemKey}
-      style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        backgroundColor: '#dadada',
-        marginRight: 6,
-      }}
-    >
-      <Text style={{ color: 'grey', fontWeight: 'bold' }}>{item.title}</Text>
-      <TouchableOpacity style={{ marginLeft: 4 }} onPress={onPress}>
-        <Icon name="close" color="grey" />
-      </TouchableOpacity>
-    </View>
-  )
+const customChip = ({ item, onPress, itemKey }) => (
+  <View
+    key={itemKey}
+    style={{
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: 8,
+      paddingVertical: 4,
+      backgroundColor: '#dadada',
+      marginRight: 6,
+    }}
+  >
+    <Text style={{ color: 'grey', fontWeight: 'bold' }}>{item.title}</Text>
+    <TouchableOpacity style={{ marginLeft: 4 }} onPress={onPress}>
+      <Icon name="close" color="grey" />
+    </TouchableOpacity>
+  </View>
+)
 const customIconRenderer = ({ name, size = 18, style }) => {
   // flatten the styles
-  const flat = StyleSheet.flatten(style);
+  const flat = StyleSheet.flatten(style)
   // remove out the keys that aren't accepted on View
-  const { color, fontSize, ...styles } = flat;
+  const { color, fontSize, ...styles } = flat
 
-  let iconComponent;
+  let iconComponent
   // the colour in the url on this site has to be a hex w/o hash
-  const iconColor = color && color.substr(0, 1) === '#' ? `/${color.substr(1)}/` : '/';
+  const iconColor =
+    color && color.substr(0, 1) === '#' ? `/${color.substr(1)}/` : '/'
 
   const Search = (
     <Image
       source={{ uri: `https://png.icons8.com${iconColor}ios/search/` }}
       style={{ width: size, height: size }}
     />
-  );
+  )
   const Down = (
     <Image
       source={{ uri: `https://png.icons8.com${iconColor}ios/down/` }}
       style={{ width: size, height: size }}
     />
-  );
+  )
   const Up = (
     <Image
       source={{ uri: `https://png.icons8.com${iconColor}ios/up/` }}
       style={{ width: size, height: size }}
     />
-  );
+  )
   const Close = (
     <Image
       source={{ uri: `https://png.icons8.com/${iconColor}ios/multiply/` }}
       style={{ width: size, height: size }}
     />
-  );
+  )
 
   const Check = (
     <Image
       source={{ uri: `https://png.icons8.com/${iconColor}android/checkmark/` }}
       style={{ width: size / 1.5, height: size / 1.5 }}
     />
-  );
+  )
   const Cancel = (
     <Image
       source={{ uri: `https://png.icons8.com/${iconColor}ios/cancel/` }}
       style={{ width: size, height: size }}
     />
-  );
+  )
 
   switch (name) {
     case 'search':
-      iconComponent = Search;
-      break;
+      iconComponent = Search
+      break
     case 'keyboard-arrow-up':
-      iconComponent = Up;
-      break;
+      iconComponent = Up
+      break
     case 'keyboard-arrow-down':
-      iconComponent = Down;
-      break;
+      iconComponent = Down
+      break
     case 'close':
-      iconComponent = Close;
-      break;
+      iconComponent = Close
+      break
     case 'check':
-      iconComponent = Check;
-      break;
+      iconComponent = Check
+      break
     case 'cancel':
-      iconComponent = Cancel;
-      break;
+      iconComponent = Cancel
+      break
     default:
-      iconComponent = null;
-      break;
+      iconComponent = null
+      break
   }
-  return <View style={styles}>{iconComponent}</View>;
-};
+  return <View style={styles}>{iconComponent}</View>
+}
 
 const ZApp = () => {
   const [state, _setState] = React.useState({
@@ -407,17 +408,18 @@ const ZApp = () => {
     selectChildren: false,
     hideChipRemove: false,
     hasErrored: false,
-  });
-  const setState = (newState) => _setState({ ...state, ...newState });
-  const termId = 100;
-  const maxItems = 5;
-  const onSelectedItemObjectsChange = (objs) => setState({ selectedItemObjects: objs });
-  const [selectedItems1, setSelectedItems1] = React.useState([1]);
+  })
+  const setState = newState => _setState({ ...state, ...newState })
+  const termId = 100
+  const maxItems = 5
+  const onSelectedItemObjectsChange = objs =>
+    setState({ selectedItemObjects: objs })
+  const [selectedItems1, setSelectedItems1] = React.useState([1])
 
-  const onSelectedItemsChange = (items) => {
+  const onSelectedItemsChange = items => {
     // setSelectedItems1(items);
-    console.log('selected items changee!', items);
-  };
+    console.log('selected items changee!', items)
+  }
 
   const SMSState = useSectionedMultiSelect({
     items,
@@ -437,7 +439,7 @@ const ZApp = () => {
     parentsHighlightAllChildren: state.highlightChildren,
     parentsSelectAllChildren: state.selectChildren,
     hideChipRemove: state.hideChipRemove,
-  });
+  })
   const {
     // selectedItems,
     Search: SearchBox,
@@ -459,13 +461,12 @@ const ZApp = () => {
     selectedItems,
     getModalProps,
     colors,
-  } = SMSState;
+  } = SMSState
 
-  const onSwitchToggle = (k) => {
-    const v = !state[k];
-    setState({ [k]: v });
-  };
-
+  const onSwitchToggle = k => {
+    const v = !state[k]
+    setState({ [k]: v })
+  }
 
   return (
     <ScrollView
@@ -473,7 +474,9 @@ const ZApp = () => {
       style={{ backgroundColor: '#f8f8f8' }}
       contentContainerStyle={styles.container}
     >
-      <Text style={styles.welcome}>React native sectioned multi select example.</Text>
+      <Text style={styles.welcome}>
+        React native sectioned multi select example.
+      </Text>
       <React.Fragment>
         <SMSContext.Provider value={SMSState}>
           <Chips />
@@ -481,7 +484,13 @@ const ZApp = () => {
             <React.Fragment>
               <Header />
               <SearchBox />
-              <View style={{ height: 50, borderBottomWidth: 1, borderBottomColor: 'lightgrey' }}>
+              <View
+                style={{
+                  height: 50,
+                  borderBottomWidth: 1,
+                  borderBottomColor: 'lightgrey',
+                }}
+              >
                 {/*
                       showing the chips inside the SmsModal
                       in a horizontal ScrollView,
@@ -508,7 +517,9 @@ const ZApp = () => {
                       flex: 1,
                       backgroundColor: colors.primary,
                     }}
-                    onPress={selectedItems.length ? _removeAllItems : _selectAllItems}
+                    onPress={
+                      selectedItems.length ? _removeAllItems : _selectAllItems
+                    }
                   >
                     <Text style={{ color: 'white', fontWeight: 'bold' }}>
                       {selectedItems.length ? 'Remove' : 'Select'} all
@@ -516,16 +527,16 @@ const ZApp = () => {
                   </TouchableOpacity>
 
                   <View style={{ flex: 1, flexDirection: 'row' }}>
-                    {selectedItems.map((id) => {
-                      const item = _findItem(id);
+                    {selectedItems.map(id => {
+                      const item = _findItem(id)
                       const isParent = _checkIsParent(item)
-                      if (!item || !item[displayKey]) return null;
+                      if (!item || !item[displayKey]) return null
                       // if (item[subKey] && item[subKey].length) return null;
                       return customChip({
                         id: id,
                         text: item[displayKey],
                         onPress: () => _toggleItem(item, isParent),
-                      });
+                      })
                     })}
                   </View>
                 </ScrollView>
@@ -552,7 +563,11 @@ const ZApp = () => {
         <View style={styles.border}>
           <Text style={styles.heading}>Settings</Text>
         </View>
-        <Toggle name="Single" onPress={() => onSwitchToggle('single')} val={state.single} />
+        <Toggle
+          name="Single"
+          onPress={() => onSwitchToggle('single')}
+          val={state.single}
+        />
         <Toggle
           name="Read only headings"
           onPress={() => onSwitchToggle('readOnlyHeadings')}
@@ -586,19 +601,22 @@ const ZApp = () => {
           onPress={() => onSwitchToggle('hideChipRemove')}
           val={state.hideChipRemove}
         />
-        <TouchableWithoutFeedback onPress={() => console.log('remove all items')}>
+        <TouchableWithoutFeedback
+          onPress={() => console.log('remove all items')}
+        >
           <View style={styles.switch}>
             <Text style={styles.label}>Remove All</Text>
           </View>
         </TouchableWithoutFeedback>
       </View>
     </ScrollView>
-  );
-};
+  )
+}
+let date = new Date()
 
 class App extends React.Component {
   constructor() {
-    super();
+    super()
     this.state = {
       items: null,
       loading: false,
@@ -613,173 +631,188 @@ class App extends React.Component {
       selectChildren: false,
       hideChipRemove: false,
       hasErrored: false,
-    };
-    this.termId = 100;
-    this.maxItems = 5;
+    }
+    this.termId = 100
+    this.maxItems = 5
   }
 
   componentDidMount() {
-    this.pretendToLoad();
+    this.pretendToLoad()
     // programatically opening the select
     // this.SectionedMultiSelect._toggleSelector()
   }
-
+  componentWillUpdate() {
+    date = new Date()
+  }
+  componentDidUpdate() {
+    // date = new Date()
+    console.log(new Date().valueOf() - date.valueOf())
+  }
   // custom icon renderer passed to iconRenderer prop
   // see the switch for possible icon name
   // values
   icon = ({ name, size = 18, style }) => {
     // flatten the styles
-    const flat = StyleSheet.flatten(style);
+    const flat = StyleSheet.flatten(style)
     // remove out the keys that aren't accepted on View
-    const { color, fontSize, ...styles } = flat;
+    const { color, fontSize, ...styles } = flat
 
-    let iconComponent;
+    let iconComponent
     // the colour in the url on this site has to be a hex w/o hash
-    const iconColor = color && color.substr(0, 1) === '#' ? `${color.substr(1)}/` : '/';
+    const iconColor =
+      color && color.substr(0, 1) === '#' ? `${color.substr(1)}/` : '/'
 
     const Search = (
       <Image
         source={{ uri: `https://png.icons8.com/search/${iconColor}ios/` }}
         style={{ width: size, height: size }}
       />
-    );
+    )
     const Down = (
       <Image
         source={{ uri: `https://png.icons8.com/down/${iconColor}ios/` }}
         style={{ width: size, height: size }}
       />
-    );
+    )
     const Up = (
       <Image
         source={{ uri: `https://png.icons8.com/up/${iconColor}ios/` }}
         style={{ width: size, height: size }}
       />
-    );
+    )
     const Close = (
       <Image
         source={{ uri: `https://png.icons8.com/multiply/${iconColor}ios/` }}
         style={{ width: size, height: size }}
       />
-    );
+    )
 
     const Check = (
       <Image
-        source={{ uri: `https://png.icons8.com/checkmark/${iconColor}android/` }}
+        source={{
+          uri: `https://png.icons8.com/checkmark/${iconColor}android/`,
+        }}
         style={{ width: size / 1.5, height: size / 1.5 }}
       />
-    );
+    )
     const Cancel = (
       <Image
         source={{ uri: `https://png.icons8.com/cancel/${iconColor}ios/` }}
         style={{ width: size, height: size }}
       />
-    );
+    )
 
     switch (name) {
       case 'search':
-        iconComponent = Search;
-        break;
+        iconComponent = Search
+        break
       case 'keyboard-arrow-up':
-        iconComponent = Up;
-        break;
+        iconComponent = Up
+        break
       case 'keyboard-arrow-down':
-        iconComponent = Down;
-        break;
+        iconComponent = Down
+        break
       case 'close':
-        iconComponent = Close;
-        break;
+        iconComponent = Close
+        break
       case 'check':
-        iconComponent = Check;
-        break;
+        iconComponent = Check
+        break
       case 'cancel':
-        iconComponent = Cancel;
-        break;
+        iconComponent = Cancel
+        break
       default:
-        iconComponent = null;
-        break;
+        iconComponent = null
+        break
     }
-    return <View style={styles}>{iconComponent}</View>;
-  };
+    return <View style={styles}>{iconComponent}</View>
+  }
 
-  getProp = (object, key) => object && this.removerAcentos(object[key]);
+  getProp = (object, key) => object && this.removerAcentos(object[key])
 
-  rejectProp = (items, fn) => items.filter(fn);
+  rejectProp = (items, fn) => items.filter(fn)
 
   pretendToLoad = () => {
-    this.setState({ loading: true });
+    this.setState({ loading: true })
     setTimeout(() => {
-      this.setState({ loading: false, items });
-    }, 0);
-  };
+      this.setState({ loading: false, items })
+    }, 0)
+  }
 
   // testing a custom filtering function that ignores accents
-  removerAcentos = (s) => s.replace(/[\W\[\] ]/g, (a) => accentMap[a] || a);
+  removerAcentos = s => s.replace(/[\W\[\] ]/g, a => accentMap[a] || a)
 
   filterItems = (searchTerm, items, { subKey, displayKey, uniqueKey }) => {
-    let filteredItems = [];
-    let newFilteredItems = [];
-    items.forEach((item) => {
-      const parts = this.removerAcentos(searchTerm.trim()).split(/[[ \][)(\\/?\-:]+/);
-      const regex = new RegExp(`(${parts.join('|')})`, 'i');
+    let filteredItems = []
+    let newFilteredItems = []
+    items.forEach(item => {
+      const parts = this.removerAcentos(searchTerm.trim()).split(
+        /[[ \][)(\\/?\-:]+/
+      )
+      const regex = new RegExp(`(${parts.join('|')})`, 'i')
       if (regex.test(this.getProp(item, displayKey))) {
-        filteredItems.push(item);
+        filteredItems.push(item)
       }
       if (item[subKey]) {
-        const newItem = Object.assign({}, item);
-        newItem[subKey] = [];
-        item[subKey].forEach((sub) => {
+        const newItem = Object.assign({}, item)
+        newItem[subKey] = []
+        item[subKey].forEach(sub => {
           if (regex.test(this.getProp(sub, displayKey))) {
-            newItem[subKey] = [...newItem[subKey], sub];
+            newItem[subKey] = [...newItem[subKey], sub]
             newFilteredItems = this.rejectProp(
               filteredItems,
-              (singleItem) => item[uniqueKey] !== singleItem[uniqueKey]
-            );
-            newFilteredItems.push(newItem);
-            filteredItems = newFilteredItems;
+              singleItem => item[uniqueKey] !== singleItem[uniqueKey]
+            )
+            newFilteredItems.push(newItem)
+            filteredItems = newFilteredItems
           }
-        });
+        })
       }
-    });
-    return filteredItems;
-  };
+    })
+    return filteredItems
+  }
 
-  onSelectedItemsChange = (selectedItems) => {
-    console.log(selectedItems, selectedItems.length);
+  onSelectedItemsChange = selectedItems => {
+    console.log(selectedItems, selectedItems.length)
 
     if (selectedItems.length >= this.maxItems) {
       if (selectedItems.length === this.maxItems) {
-        this.setState({ selectedItems });
+        this.setState({ selectedItems })
       }
       this.setState({
         maxItems: true,
-      });
-      return;
+      })
+      return
     }
     this.setState({
       maxItems: false,
-    });
+    })
 
-    const filteredItems = selectedItems.filter((val) => !this.state.selectedItems2.includes(val));
-    this.setState({ selectedItems: filteredItems });
-  };
+    const filteredItems = selectedItems.filter(
+      val => !this.state.selectedItems2.includes(val)
+    )
+    this.setState({ selectedItems: filteredItems })
+  }
 
-  onSelectedItemsChange2 = (selectedItems) => {
-    const filteredItems = selectedItems.filter((val) => !this.state.selectedItems.includes(val));
-    this.setState({ selectedItems2: filteredItems });
-  };
+  onSelectedItemsChange2 = selectedItems => {
+    const filteredItems = selectedItems.filter(
+      val => !this.state.selectedItems.includes(val)
+    )
+    this.setState({ selectedItems2: filteredItems })
+  }
 
   onConfirm = () => {
-    this.setState({ currentItems: this.state.selectedItems });
-  };
+    this.setState({ currentItems: this.state.selectedItems })
+  }
   onCancel = () => {
     // this.SectionedMultiSelect._removeAllItems();
 
     this.setState({
       selectedItems: this.state.currentItems,
-    });
-    console.log(this.state.selectedItems);
-  };
-  onSelectedItemObjectsChange = (selectedItemObjects) => {
+    })
+    console.log(this.state.selectedItems)
+  }
+  onSelectedItemObjectsChange = selectedItemObjects => {
     // let id
     // selectedItemObjects.filter((item) => {
     //   console.log(item.children && item.id)
@@ -789,69 +822,69 @@ class App extends React.Component {
     // })
     // console.log('parent', id)
     // const selected = this.state.selectedItems.filter(item => item !== id)
-    console.log('selected item objects', selectedItemObjects);
-    
-    this.setState({ selectedItemObjects });
+    console.log('selected item objects', selectedItemObjects)
+
+    this.setState({ selectedItemObjects })
     // this.setState(prevState => ({
     //   selectedItems: [...prevState.selectedItems.filter(item => item !== id)],
     // }))
     // this.onSelectedItemsChange(this.state.selectedItems)
     // console.log(selectedItemObjects)
-  };
+  }
 
-  onSwitchToggle = (k) => {
-    const v = !this.state[k];
-    this.setState({ [k]: v });
-  };
+  onSwitchToggle = k => {
+    const v = !this.state[k]
+    this.setState({ [k]: v })
+  }
 
-  onToggleSwitch = (key, val) => this.setState({ [key]: val });
+  onToggleSwitch = (key, val) => this.setState({ [key]: val })
 
   fetchCategories = () => {
-    this.setState({ hasErrored: false });
+    this.setState({ hasErrored: false })
     fetch('http://www.mocky.io/v2/5a5573a22f00005c04beea49?mocky-delay=500ms', {
       headers: 'no-cache',
     })
-      .then((response) => response.json())
-      .then((responseJson) => {
-        this.setState({ cats: responseJson });
+      .then(response => response.json())
+      .then(responseJson => {
+        this.setState({ cats: responseJson })
       })
-      .catch((error) => {
-        this.setState({ hasErrored: true });
-        throw error.message;
-      });
-  };
-  filterDuplicates = (items) =>
+      .catch(error => {
+        this.setState({ hasErrored: true })
+        throw error.message
+      })
+  }
+  filterDuplicates = items =>
     items.sort().reduce((accumulator, current) => {
-      const length = accumulator.length;
+      const length = accumulator.length
       if (length === 0 || accumulator[length - 1] !== current) {
-        accumulator.push(current);
+        accumulator.push(current)
       }
-      return accumulator;
-    }, []);
+      return accumulator
+    }, [])
 
   noResults = (
     <View key="a" style={styles.center}>
       <Text>Sorry! No results...</Text>
     </View>
-  );
+  )
 
   handleAddSearchTerm = (searchTerm, submit) => {
-    const id = (this.termId += 1);
+    const id = (this.termId += 1)
     if (
       searchTerm.length &&
-      !(this.state.items || []).some((item) => item.title.includes(searchTerm))
+      !(this.state.items || []).some(item => item.title.includes(searchTerm))
     ) {
-      const newItem = { id, title: searchTerm };
-      this.setState((prevState) => ({
+      const newItem = { id, title: searchTerm }
+      this.setState(prevState => ({
         items: [...(prevState.items || []), newItem],
-      }));
-      this.onSelectedItemsChange([...this.state.selectedItems, id]);
-      submit();
+      }))
+      this.onSelectedItemsChange([...this.state.selectedItems, id])
+      submit()
     }
-  };
+  }
 
   renderSelectText = ({ selectText, displayKey }) => {
-    const { selectedItemObjects } = this.state;
+    const { selectedItemObjects } = this.state
     return selectedItemObjects && selectedItemObjects.length ? (
       <View style={{ flex: 1, flexDirection: 'row' }}>
         <View style={{ flex: 1 }}>
@@ -863,7 +896,7 @@ class App extends React.Component {
       </View>
     ) : (
       selectText
-    );
+    )
     // return selectedItemObjects.length
     //   ? `I like ${selectedItemObjects
     //       .map((item, i) => {
@@ -874,7 +907,7 @@ class App extends React.Component {
     //       })
     //       .join('')}`
     //   : 'Select a fruit';
-  };
+  }
   searchAdornment = (searchTerm, submit) =>
     searchTerm.length ? (
       <TouchableOpacity
@@ -885,20 +918,20 @@ class App extends React.Component {
           <Icon size={18} style={{ marginHorizontal: 15 }} name="add" />
         </View>
       </TouchableOpacity>
-    ) : null;
-  onToggleSelect = (toggled) => {
-    console.log('select is ', toggled ? 'open' : 'closed');
-  };
-  customChipsRenderer = (props) => {
-    console.log('props', props);
+    ) : null
+  onToggleSelect = toggled => {
+    console.log('select is ', toggled ? 'open' : 'closed')
+  }
+  customChipsRenderer = props => {
+    console.log('props', props)
     return (
       <View style={{ backgroundColor: 'yellow', padding: 15 }}>
         <Text>Selected:</Text>
-        {props.selectedItems.map((singleSelectedItem) => {
-          const item = this.SectionedMultiSelect._findItem(singleSelectedItem);
+        {props.selectedItems.map(singleSelectedItem => {
+          const item = this.SectionedMultiSelect._findItem(singleSelectedItem)
 
-          if (!item || !item[props.displayKey]) return null;
-          if (item[props.subKey] && item[props.subKey].length) return null;
+          if (!item || !item[props.displayKey]) return null
+          if (item[props.subKey] && item[props.subKey].length) return null
           return (
             <View
               key={item[props.uniqueKey]}
@@ -911,17 +944,17 @@ class App extends React.Component {
             >
               <TouchableOpacity
                 onPress={() => {
-                  this.SectionedMultiSelect._removeItem(item);
+                  this.SectionedMultiSelect._removeItem(item)
                 }}
               >
                 <Text>{item[props.displayKey]}</Text>
               </TouchableOpacity>
             </View>
-          );
+          )
         })}
       </View>
-    );
-  };
+    )
+  }
 
   SelectOrRemoveAll = () => (
     <TouchableOpacity
@@ -939,11 +972,9 @@ class App extends React.Component {
         {this.state.selectedItems.length ? 'Remove' : 'Select'} all
       </Text>
     </TouchableOpacity>
-  );
+  )
 
-  getDisplayText = (item) => (item.title.en ? item.title.en : item.title);
-
-
+  getDisplayText = item => (item.title.en ? item.title.en : item.title)
 
   render() {
     // const {
@@ -986,6 +1017,7 @@ class App extends React.Component {
           subKey="children"
           displayKey="title"
           iconKey="icon"
+          iconRenderer={Icon}
           // autoFocus
           // subDisplayKey={this.getDisplayText}
           // showCancelButton
@@ -1112,6 +1144,7 @@ class App extends React.Component {
           getItem={item => `item--${item.id}`}
           getChildren={item => item.children}
           getChildItem={item => `child--${item.id}`}
+          iconRenderer={Icon}
           uniqueKey="id"
           subKey="children"
           displayKey="title"
@@ -1267,75 +1300,90 @@ class App extends React.Component {
                 </Text>
                 <React.Fragment>
                   <Chips />
-                  <Modal {...getModalProps()}>
-                    <SelectModal>
-                      <React.Fragment>
-                        <Header />
-                        {/*   <SearchBox /> */}
-                        <View
-                          style={{
-                            height: 50,
-                            borderBottomWidth: 1,
-                            borderBottomColor: 'lightgrey',
-                          }}
-                        >
-                          {/*
+                  <SelectModal>
+                    <React.Fragment>
+                      <Header />
+                      {/*   <SearchBox /> */}
+                      <View
+                        style={{
+                          height: 50,
+                          borderBottomWidth: 1,
+                          borderBottomColor: 'lightgrey',
+                        }}
+                      >
+                        {/*
                       showing the chips inside the SelectModal
                       in a horizontal ScrollView,
                       with a select/remove all button
                     */}
-                          <ScrollView
-                            horizontal
-                            contentContainerStyle={{
-                              flexDirection: 'row',
-                              flexWrap: 'nowrap',
+                        <ScrollView
+                          horizontal
+                          contentContainerStyle={{
+                            flexDirection: 'row',
+                            flexWrap: 'nowrap',
+                            paddingHorizontal: 10,
+                          }}
+                        >
+                          <TouchableOpacity
+                            style={{
+                              justifyContent: 'center',
+                              height: 24,
+                              borderWidth: 0,
+                              borderRadius: 20,
                               paddingHorizontal: 10,
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                              alignSelf: 'center',
+                              flex: 1,
+                              backgroundColor: colors.primary,
                             }}
+                            onPress={
+                              selectedItems.length
+                                ? _removeAllItems
+                                : _selectAllItems
+                            }
                           >
-                            <TouchableOpacity
-                              style={{
-                                justifyContent: 'center',
-                                height: 24,
-                                borderWidth: 0,
-                                borderRadius: 20,
-                                paddingHorizontal: 10,
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                alignSelf: 'center',
-                                flex: 1,
-                                backgroundColor: colors.primary,
-                              }}
-                              onPress={
-                                selectedItems.length
-                                  ? _removeAllItems
-                                  : _selectAllItems
-                              }
+                            <Text
+                              style={{ color: 'white', fontWeight: 'bold' }}
                             >
-                              <Text
-                                style={{ color: 'white', fontWeight: 'bold' }}
-                              >
-                                {selectedItems.length ? 'Remove' : 'Select'} all
-                              </Text>
-                            </TouchableOpacity>
+                              {selectedItems.length ? 'Remove' : 'Select'} all
+                            </Text>
+                          </TouchableOpacity>
+                            
+                          <View style={{ flex: 1, flexDirection: 'row', }}>
+                            {selectedItems.map(id => {
+                              return (
+                                <Chip
+                                  styles={{
+                                    chipContainer: {
+                                      backgroundColor: 'orange',
+                                      borderColor: 'yellow',
+                                      height: 24,
+                                      alignSelf: 'center',
 
-                            <View style={{ flex: 1, flexDirection: 'row' }}>
-                              {selectedItems.map(id => {
-                                const item = _findItem(id)
-                                const itemProps = getItemProps({ id })
-                                console.log('customChip itemProps', itemProps)
-
-                                if (!item || !item[displayKey]) return null
-                                // if (item[subKey] && item[subKey].length) return null;
-                                return <Chip { ...itemProps } />
-                              })}
-                            </View>
-                          </ScrollView>
-                        </View>
-                        <Items />
-                        <Controls />
-                      </React.Fragment>
-                    </SelectModal>
-                  </Modal>
+                                      borderWidth: 0,
+                                      borderRadius: 20,
+                                      paddingHorizontal: 10,
+                                    },
+                                    chipText: {
+                                      color: 'white',
+                                    },
+                                    chipIcon: {
+                                      color: 'white'
+                                    }
+                                  }}
+                                  key={id}
+                                  id={id}
+                                />
+                              )
+                            })}
+                          </View>
+                        </ScrollView>
+                      </View>
+                      <Items />
+                      <Controls />
+                    </React.Fragment>
+                  </SelectModal>
                   <Selector />
                 </React.Fragment>
 
@@ -1405,4 +1453,4 @@ class App extends React.Component {
   }
 }
 
-export default App;
+export default App
