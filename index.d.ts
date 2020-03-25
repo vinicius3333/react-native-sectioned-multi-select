@@ -9,7 +9,7 @@ export interface Styles {
   item?: ReactNative.StyleProp<ReactNative.ViewStyle>;
   subItem?: ReactNative.StyleProp<ReactNative.ViewStyle>;
   itemText?: ReactNative.StyleProp<ReactNative.TextStyle>;
-selectedItemText?: ReactNative.StyleProp<ReactNative.TextStyle>;
+  selectedItemText?: ReactNative.StyleProp<ReactNative.TextStyle>;
   selectedSubItemText?: ReactNative.StyleProp<ReactNative.TextStyle>;
   subItemText?: ReactNative.StyleProp<ReactNative.TextStyle>;
   searchBar?: ReactNative.StyleProp<ReactNative.ViewStyle>;
@@ -37,6 +37,14 @@ export interface SectionedMultiSelectProps<ItemType> {
   displayKey?: string;
   uniqueKey: string;
   subKey?: string;
+  iconNames?: {
+    close: string;
+    cancel: string;
+    search: string;
+    checkMark: string;
+    arrowDown: string;
+    arrowUp:string;
+  };
   onSelectedItemsChange: (items: []) => void;
   showDropDowns?: boolean;
   showChips?: boolean;
@@ -86,8 +94,8 @@ export interface SectionedMultiSelectProps<ItemType> {
   dropDownToggleIconUpComponent?: (() => void) | JSX.Element;
   dropDownToggleIconDownComponent?: (() => void) | JSX.Element;
   chipRemoveIconComponent?: (() => void) | JSX.Element;
-  selectChildren?: boolean;
-  highlightChildren?: boolean;
+  parentsSelectAllChildren?: boolean;
+  parentsHighlightAllChildren?: boolean;
   onSelectedItemObjectsChange?: (items: ItemType[]) => void;
   itemNumberOfLines?: number;
   selectLabelNumberOfLines?: number;
@@ -109,7 +117,8 @@ export interface SectionedMultiSelectProps<ItemType> {
   autoFocus?: boolean;
   iconKey?: string;
   disabled?: boolean;
-  selectedIconOnLeft?: boolean;
+  selectedIconPosition?: 'left' | 'right';
+  itemIconPosition?: 'left' | 'right';
   parentChipsRemoveChildren?: boolean;
   iconRenderer?: (() => void) | JSX.Element;
   itemsFlatListProps?: Omit<ReactNative.FlatListProps<T>, 'data' | 'renderItem'>;
