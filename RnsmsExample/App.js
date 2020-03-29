@@ -233,46 +233,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between'
   }
 });
-const accentMap = {
-  â: 'a',
-  Â: 'A',
-  à: 'a',
-  À: 'A',
-  á: 'a',
-  Á: 'A',
-  ã: 'a',
-  Ã: 'A',
-  ê: 'e',
-  Ê: 'E',
-  è: 'e',
-  È: 'E',
-  é: 'e',
-  É: 'E',
-  î: 'i',
-  Î: 'I',
-  ì: 'i',
-  Ì: 'I',
-  í: 'i',
-  Í: 'I',
-  õ: 'o',
-  Õ: 'O',
-  ô: 'o',
-  Ô: 'O',
-  ò: 'o',
-  Ò: 'O',
-  ó: 'o',
-  Ó: 'O',
-  ü: 'u',
-  Ü: 'U',
-  û: 'u',
-  Û: 'U',
-  ú: 'u',
-  Ú: 'U',
-  ù: 'u',
-  Ù: 'U',
-  ç: 'c',
-  Ç: 'C'
-};
+
 const tintColor = '#174A87';
 
 const Loading = props =>
@@ -441,7 +402,7 @@ const SMSStyles = StyleSheet.create({
   selectedSubItemText: {
     color: '#dadada'
   },
-  itemIconStyle: {
+  itemIcon: {
     marginRight: 6
   },
   separator: {height: 0},
@@ -452,19 +413,26 @@ const SMSStyles = StyleSheet.create({
 class App extends React.Component {
   constructor() {
     super();
+    // state is spread to props of
+    // sectioned multi select components
     this.state = {
+      iconRenderer: Icon,
       items: null,
+      single: false,
+      singleShouldSubmit: true,
       loading: false,
-      selectedItems: [],
+      // selectedItems: [],
       selectedItemObjects: [],
       currentItems: [],
       showDropDowns: true,
       expandDropDowns: true,
-      single: false,
       readOnlyHeadings: false,
-      parentsHighlightAllChildren: false,
-      parentsSelectAllChildren: true,
+      parentsHighlightChildren: false,
+      parentsToggleChildren: false,
+      parentsToggleChildrenOnly: true,
       hideChipRemove: false,
+      showRemoveAll: true,
+      debug: true,
       hasErrored: false
     };
     this.termId = 100;
@@ -473,8 +441,6 @@ class App extends React.Component {
 
   componentDidMount() {
     this.pretendToLoad();
-    // programatically opening the select
-    // this.SectionedMultiSelect._toggleSelector()
   }
   UNSAFE_componentWillUpdate() {
     date = new Date();
@@ -803,7 +769,11 @@ class App extends React.Component {
           styles={SMSStyles}
           onSelectedItemsChange={this.onSelectedItemsChange}
         />
-
+        <ContextRenderFunctionExample
+          {...this.state}
+          styles={SMSStyles}
+          onSelectedItemsChange={this.onSelectedItemsChange}
+        />
         <View>
           <View style={styles.border}>
             <Text style={styles.heading}>Settings</Text>
@@ -817,8 +787,8 @@ class App extends React.Component {
             name="Read only headings"
             onPress={() => this.onSwitchToggle('readOnlyHeadings')}
             disabled={
-              this.state.parentsSelectAllChildren ||
-              this.state.parentsHighlightAllChildren
+              this.state.parentsToggleChildren ||
+              this.state.parentsHighlightChildren
             }
             val={this.state.readOnlyHeadings}
           />
@@ -835,30 +805,39 @@ class App extends React.Component {
           />
           <Toggle
             name="Auto-highlight children"
-            onPress={() => this.onSwitchToggle('parentsHighlightAllChildren')}
-            val={this.state.parentsHighlightAllChildren}
+            onPress={() => this.onSwitchToggle('parentsHighlightChildren')}
+            val={this.state.parentsHighlightChildren}
             disabled={
-              this.state.parentsSelectAllChildren || this.state.readOnlyHeadings
+              this.state.parentsToggleChildren ||
+              this.state.readOnlyHeadings ||
+              this.state.parentsToggleChildrenOnly
             }
           />
+
           <Toggle
-            name="Auto-select children"
-            onPress={() => this.onSwitchToggle('parentsSelectAllChildren')}
+            name="Auto-toggle children"
+            onPress={() => this.onSwitchToggle('parentsToggleChildren')}
             disabled={
-              this.state.parentsHighlightAllChildren ||
+              this.state.parentsHighlightChildren ||
+              this.state.readOnlyHeadings ||
+              this.state.parentsToggleChildrenOnly
+            }
+            val={this.state.parentsToggleChildren}
+          />
+          <Toggle
+            name="Auto-toggle children only"
+            onPress={() => this.onSwitchToggle('parentsToggleChildrenOnly')}
+            val={this.state.parentsToggleChildrenOnly}
+            disabled={
+              this.state.parentsToggleChildren ||
+              this.state.parentsHighlightChildren ||
               this.state.readOnlyHeadings
             }
-            val={this.state.parentsSelectAllChildren}
           />
           <Toggle
             name="Hide Chip Remove Buttons"
             onPress={() => this.onSwitchToggle('hideChipRemove')}
             val={this.state.hideChipRemove}
-          />
-          <Toggle
-            name="Parent Chips Remove Children"
-            onPress={() => this.onSwitchToggle('parentChipsRemoveChildren')}
-            val={this.state.parentChipsRemoveChildren}
           />
         </View>
       </ScrollView>

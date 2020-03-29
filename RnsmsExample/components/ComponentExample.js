@@ -1,10 +1,11 @@
 import * as React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import SectionedMultiSelect from 'react-native-sectioned-multi-select';
 
 class ComponentExample extends React.Component {
   render() {
+    console.log('comp props]', this.props);
+
     return (
       <SectionedMultiSelect
         itemId={item => `item--${item.title}`}
@@ -13,7 +14,6 @@ class ComponentExample extends React.Component {
         subKey="children"
         displayKey="title"
         iconKey="icon"
-        iconRenderer={Icon}
         iconNames={{
           search: 'magnify',
           close: 'close',
