@@ -13,7 +13,12 @@ import SectionedMultiSelect from 'react-native-sectioned-multi-select/dist/lib/s
 import {
   Items,
   Chip,
-  Chips
+  Chips,
+  Selector,
+  Search,
+  SelectModal,
+  ModalControls,
+  ModalHeader
 } from 'react-native-sectioned-multi-select/dist/lib/components';
 import Icon from 'react-native-vector-icons/dist/MaterialIcons';
 
@@ -189,18 +194,12 @@ class ContextRenderFunctionExample extends React.Component {
           {ctx => {
             const {
               selectedItems,
-              Search,
-              SelectModal,
-              ModalControls,
-              Selector,
-              // Chips,
-              ModalHeader,
               _selectAllItems,
               _removeAllItems,
               colors
             } = ctx;
             return (
-              <React.Fragment>
+              <View>
                 <Chips />
                 <SelectModal>
                   <React.Fragment>
@@ -285,7 +284,7 @@ class ContextRenderFunctionExample extends React.Component {
                   </React.Fragment>
                 </SelectModal>
                 <Selector />
-              </React.Fragment>
+              </View>
             );
           }}
         </SectionedMultiSelect>

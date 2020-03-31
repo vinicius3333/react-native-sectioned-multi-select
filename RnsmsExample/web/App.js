@@ -13,13 +13,12 @@ import {
 
 import Icon from 'react-native-vector-icons/dist/MaterialCommunityIcons';
 import ContextRenderFunctionExampleWeb from './ContextRenderFunctionExampleWeb';
-
-// Icons for react-native-web
+// Icons support for react-native-web
 // Generate required css
-import iconFont from 'react-native-vector-icons/Fonts/FontAwesome.ttf';
+import iconFont from 'react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf';
 const iconFontStyles = `@font-face {
   src: url(${iconFont});
-  font-family: FontAwesome;
+  font-family: Material Design Icons;
 }`;
 
 // Create stylesheet
@@ -30,7 +29,6 @@ if (style.styleSheet) {
 } else {
   style.appendChild(document.createTextNode(iconFontStyles));
 }
-
 // Inject stylesheet
 document.head.appendChild(style);
 
