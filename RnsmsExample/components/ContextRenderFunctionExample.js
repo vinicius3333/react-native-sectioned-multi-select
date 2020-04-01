@@ -1,20 +1,19 @@
 import * as React from 'react';
 import {
-  StyleSheet,
+  Platform,
   Text,
   View,
   ScrollView,
   Image,
   TouchableWithoutFeedback,
   TouchableOpacity,
-  ActivityIndicator
+  ActivityIndicator,
+  Modal
 } from 'react-native';
-import SectionedMultiSelect, {
-  SMSContext,
-  Chip,
-  Items
-} from 'react-native-sectioned-multi-select/lib/sectioned-multi-select';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import SectionedMultiSelect from 'react-native-sectioned-multi-select/dist/lib/sectioned-multi-select';
+
+import Icon from 'react-native-vector-icons/dist/MaterialIcons';
+import WebModal from 'modal-enhanced-react-native-web';
 
 let date = new Date();
 
@@ -22,7 +21,7 @@ class ContextRenderFunctionExample extends React.Component {
   constructor() {
     super();
     this.state = {
-      selectedItems: [
+      currentSelection: [
         'child--Avocado burger',
         'child--Diet Coke',
         'child--Coke',
@@ -41,28 +40,7 @@ class ContextRenderFunctionExample extends React.Component {
     // date = new Date()
     console.log(new Date().valueOf() - date.valueOf());
   }
-  itemsReducer = (state, action) => {
-    console.log('reducer: ', state, action);
 
-    switch (action.type) {
-      case 'add':
-        return [...state, action.item];
-      case 'add-single':
-        return [action.item];
-      case 'remove':
-        return [...state.filter(item => item !== action.item)];
-      case 'replace-items':
-        return [...action.items];
-      case 'add-items':
-        return [...state, ...action.items];
-      case 'remove-items':
-        return [...state.filter(item => !action.items.includes(item))];
-      case 'remove-all':
-        return [];
-      default:
-        return state;
-    }
-  };
   updateItemsExternal = () => {
     // zoop
     // need to dispatch here
@@ -71,36 +49,54 @@ class ContextRenderFunctionExample extends React.Component {
     });
   };
 
-  limitItems = (limit, action) => (dispatch, state) => {
-    console.log('...thunk', state, action.count, limit);
+  onSelectedItemsChange = action => (dispatch, getState) => {
+    const prevItems = getState();
+    console.log(
+      '...thunk',
+      prevItems,
+      action,
+      prevItems.length + action.count || 0
+    );
+    const count = prevItems.length + (action.count || 0);
+    this.setState({
+      message: `${count} selected`
+    });
+    console.log('message', this.state.message);
 
-    if (state && state.length + action.count > limit) {
+    const limit = 5;
+    if (action.count && prevItems.length + action.count > limit) {
+      this.setState({message: 'Please select 5 or less items'});
+      dispatch({});
       return;
     }
-    dispatch(action);
+    dispatch(action).then(() => {
+      console.log('items updated', getState());
+      this.setState({
+        message: `${getState().length} selected`
+      });
+      // if chips were removed we want
+      // that to be reflected in the current selected Items
+      // otherwise you could remove chips, open select,
+      // press cancel, then get the selected items before
+      // the chips were removed
+      if (action.origin === 'chip') {
+        this.setState({
+          currentSelection: getState()
+        });
+      }
+    });
   };
-  // selected items are previous selectedItems (when using selectedItems prop)
-  onSelectedItemsChange = (selectedItems, dispatch, params) => {
-    console.log(
-      'App: dispatch params',
-      params,
-      selectedItems.length,
-      selectedItems,
-      params.count && params.count + selectedItems.length
-    );
-    //  const state = this.itemsReducer(selectedItems, params);
-    // // this.setState({selectedItems: state});
 
-    // // const dispatchesThatAdd = ['add-items', 'add-single']
-    // // shitty attempt at an 'item limit'
-    // if (params.count && params.count + selectedItems.length > 5) {
-    //   console.log(
-    //     'App: not dispatching because total selected would be over 5!'
-    //   );
-
-    //   return;
-    // }
-    dispatch(this.limitItems(5, params));
+  onCancel = (items, dispatch) => {
+    console.log('currentSelection', this.state.currentSelection);
+    dispatch({
+      type: 'replace-items',
+      items: this.state.currentSelection,
+      origin: 'cancel'
+    });
+    this.setState({
+      message: `${this.state.currentSelection.length} selected`
+    });
   };
   render() {
     return (
@@ -117,18 +113,27 @@ class ContextRenderFunctionExample extends React.Component {
           displayKey="title"
           iconKey="icon"
           iconRenderer={Icon}
+          headerComponent={() => (
+            <Text style={{textAlign: 'center', padding: 4}}>
+              {this.state.message}
+            </Text>
+          )}
           iconNames={{
             search: 'magnify',
             close: 'close',
+            cancel: 'cancel',
             checkMark: 'check',
             arrowDown: 'chevron-down',
             arrowUp: 'chevron-up'
           }}
           modalWithSafeAreaView={true}
           {...this.props}
+          debug
+          onCancel={this.onCancel}
+          onConfirm={items => this.setState({currentSelection: items})}
           onSelectedItemsChange={this.onSelectedItemsChange}
-          initialSelectedItems={this.state.selectedItems}
-          selectedItems={this.state.selectedItems}
+          initialSelectedItems={this.state.currentSelection}
+          // selectedItems={this.state.selectedItems}
           styles={{
             // chipText: {
             //   maxWidth: Dimensions.get('screen').width - 90,
@@ -194,113 +199,122 @@ class ContextRenderFunctionExample extends React.Component {
           }}
           selectedIconComponent={() => {}}
           showCancelButton
-          cancelIconComponent={
-            <Icon size={20} name="close" style={{color: 'white'}} />
-          }>
-          <SMSContext.Consumer>
-            {ctx => {
-              const {
-                selectedItems,
-                Search,
+          // cancelIconComponent={
+          //   <Icon size={20} name="close" style={{color: 'white'}} />
+          // }
+          modalProps={{
+            style: {margin: 0}
+            // propagateSwipe: true,
+            // hasBackdrop: false,
+            // deviceWidth: 100,
+            // deviceHeight: 100
+          }}
+          modalComponent={Platform.OS === 'web' ? WebModal : Modal}>
+          {ctx => {
+            const {
+              selectedItems,
+              _selectAllItems,
+              _removeAllItems,
+              colors,
+              components: {
+                ModalHeader,
                 SelectModal,
                 ModalControls,
                 Selector,
+                Chip,
                 Chips,
-                ModalHeader,
-                _selectAllItems,
-                _removeAllItems,
-                colors
-              } = ctx;
-              return (
-                <React.Fragment>
-                  <Chips />
-                  <SelectModal>
-                    <React.Fragment>
-                      <ModalHeader />
-                      {/*   <SearchBox /> */}
-                      <View
-                        style={{
-                          height: 50,
-                          borderBottomWidth: 1,
-                          borderBottomColor: 'lightgrey'
-                        }}>
-                        {/*
+                Items,
+                Search
+              }
+            } = ctx;
+            return (
+              <React.Fragment>
+                <Chips />
+                <SelectModal>
+                  <React.Fragment>
+                    <ModalHeader />
+                    {/*   <SearchBox /> */}
+                    <View
+                      style={{
+                        height: 50,
+                        borderBottomWidth: 1,
+                        borderBottomColor: 'lightgrey'
+                      }}>
+                      {/*
                       showing the chips inside the SelectModal
                       in a horizontal ScrollView,
                       with a select/remove all button
                     */}
-                        <ScrollView
-                          horizontal
-                          contentContainerStyle={{
+                      <ScrollView
+                        horizontal
+                        contentContainerStyle={{
+                          flexDirection: 'row',
+                          flexWrap: 'nowrap',
+                          paddingHorizontal: 10
+                        }}>
+                        <TouchableOpacity
+                          style={{
+                            justifyContent: 'center',
+                            height: 24,
+                            borderWidth: 0,
+                            borderRadius: 20,
+                            paddingHorizontal: 10,
                             flexDirection: 'row',
-                            flexWrap: 'nowrap',
-                            paddingHorizontal: 10
-                          }}>
-                          <TouchableOpacity
-                            style={{
-                              justifyContent: 'center',
-                              height: 24,
-                              borderWidth: 0,
-                              borderRadius: 20,
-                              paddingHorizontal: 10,
-                              flexDirection: 'row',
-                              alignItems: 'center',
-                              alignSelf: 'center',
-                              flex: 1,
-                              backgroundColor: colors.primary
-                            }}
-                            onPress={() =>
-                              selectedItems.length
-                                ? _removeAllItems('modal-horizontal-chips')
-                                : _selectAllItems('modal-horizontal-chips')
-                            }>
-                            <Text style={{color: 'white', fontWeight: 'bold'}}>
-                              {selectedItems.length ? 'Remove' : 'Select'} all
-                            </Text>
-                          </TouchableOpacity>
+                            alignItems: 'center',
+                            alignSelf: 'center',
+                            backgroundColor: colors.success
+                          }}
+                          onPress={() =>
+                            selectedItems.length
+                              ? _removeAllItems('modal-horizontal-chips')
+                              : _selectAllItems('modal-horizontal-chips')
+                          }>
+                          <Text style={{color: 'white', fontWeight: 'bold'}}>
+                            {selectedItems.length ? 'Remove' : 'Select'} all
+                          </Text>
+                        </TouchableOpacity>
 
-                          <View style={{flex: 1, flexDirection: 'row'}}>
-                            {selectedItems.length && selectedItems.length > 0
-                              ? selectedItems.map(id => {
-                                  return (
-                                    <Chip
-                                      items={selectedItems}
-                                      key={id}
-                                      id={id}
-                                      styles={{
-                                        chipContainer: {
-                                          backgroundColor: 'orange',
-                                          borderColor: 'yellow',
-                                          height: 24,
-                                          alignSelf: 'center',
+                        <View style={{flex: 1, flexDirection: 'row'}}>
+                          {selectedItems.length && selectedItems.length > 0
+                            ? selectedItems.map(id => {
+                                return (
+                                  <Chip
+                                    items={selectedItems}
+                                    key={id}
+                                    id={id}
+                                    styles={{
+                                      chipContainer: {
+                                        backgroundColor: colors.primary,
+                                        height: 24,
+                                        alignSelf: 'center',
 
-                                          borderWidth: 0,
-                                          borderRadius: 20,
-                                          paddingHorizontal: 10
-                                        },
-                                        chipText: {
-                                          color: 'white'
-                                        },
-                                        chipIcon: {
-                                          color: 'white'
-                                        }
-                                      }}
-                                    />
-                                  );
-                                })
-                              : null}
-                          </View>
-                        </ScrollView>
-                      </View>
-                      <Items />
-                      <ModalControls />
-                    </React.Fragment>
-                  </SelectModal>
-                  <Selector />
-                </React.Fragment>
-              );
-            }}
-          </SMSContext.Consumer>
+                                        borderWidth: 0,
+                                        borderRadius: 20,
+                                        paddingHorizontal: 10
+                                      },
+                                      chipText: {
+                                        color: 'white'
+                                      },
+                                      chipIcon: {
+                                        color: 'white'
+                                      }
+                                    }}
+                                  />
+                                );
+                              })
+                            : null}
+                        </View>
+                      </ScrollView>
+                    </View>
+                    <Items />
+                    <Search />
+                    <ModalControls />
+                  </React.Fragment>
+                </SelectModal>
+                <Selector />
+              </React.Fragment>
+            );
+          }}
         </SectionedMultiSelect>
       </View>
     );
