@@ -1,3 +1,5 @@
-import SectionedMultiSelect from './lib/sectioned-multi-select';
+import SectionedMultiSelect from './dist/sectioned-multi-select'
 
-export default SectionedMultiSelect;
+export { useSectionedMultiSelect } from './dist/useSectionedMultiSelect'
+export { default as SMSContext } from './dist/context/SMSContext'
+export default SectionedMultiSelect
