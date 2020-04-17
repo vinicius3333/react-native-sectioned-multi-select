@@ -1,23 +1,26 @@
 import * as React from 'react';
 import * as ReactNative from 'react-native';
 
+// style keys
 export interface Styles {
-  container?: ReactNative.StyleProp<ReactNative.ViewStyle>;
+  modalContainer?: ReactNative.StyleProp<ReactNative.ViewStyle>;
   modalWrapper?: ReactNative.StyleProp<ReactNative.ViewStyle>;
   selectToggle?: ReactNative.StyleProp<ReactNative.ViewStyle>;
   selectToggleText?: ReactNative.StyleProp<ReactNative.TextStyle>;
   item?: ReactNative.StyleProp<ReactNative.ViewStyle>;
   itemWrapper?: ReactNative.StyleProp<ReactNative.ViewStyle>;
   subItem?: ReactNative.StyleProp<ReactNative.ViewStyle>;
+  itemTextContainer?: ReactNative.StyleProp<ReactNative.TextStyle>;
   itemText?: ReactNative.StyleProp<ReactNative.TextStyle>;
   itemIcon?: ReactNative.StyleProp<ReactNative.ViewStyle>;
   itemIconSelected?: ReactNative.StyleProp<ReactNative.ViewStyle>;
   selectedIcon:? ReactNative.StyleProp<ReactNative.ViewStyle>;
   selectedItemText?: ReactNative.StyleProp<ReactNative.TextStyle>;
   selectedSubItemText?: ReactNative.StyleProp<ReactNative.TextStyle>;
+  subItemText?: ReactNative.StyleProp<ReactNative.TextStyle>;
+  subItemTextContainer?: ReactNative.StyleProp<ReactNative.TextStyle>;
   highlightedItem?: ReactNative.StyleProp<ReactNative.ViewStyle>;
   highlightedSubItem?: ReactNative.StyleProp<ReactNative.ViewStyle>;
-  subItemText?: ReactNative.StyleProp<ReactNative.TextStyle>;
   searchBar?: ReactNative.StyleProp<ReactNative.ViewStyle>;
   center?: ReactNative.StyleProp<ReactNative.ViewStyle>;
   separator?: ReactNative.StyleProp<ReactNative.ViewStyle>;
@@ -26,8 +29,11 @@ export interface Styles {
   chipContainer?: ReactNative.StyleProp<ReactNative.ViewStyle>;
   chipText?: ReactNative.StyleProp<ReactNative.TextStyle>;
   chipIcon?: ReactNative.StyleProp<ReactNative.ViewStyle>;
+  removeAllChipText?: ReactNative.StyleProp<ReactNative.TextStyle>;
+  removeAllChipTouchable?: ReactNative.StyleProp<ReactNative.ViewStyle>;
+  chipIconTouchable?: ReactNative.StyleProp<ReactNative.ViewStyle>;
   searchTextInput?: ReactNative.StyleProp<ReactNative.TextStyle>;
-  scrollView?: ReactNative.StyleProp<ReactNative.ViewStyle>;
+  itemsWrapper?: ReactNative.StyleProp<ReactNative.ViewStyle>;
   button?: ReactNative.StyleProp<ReactNative.ViewStyle>;
   cancelButton?: ReactNative.StyleProp<ReactNative.ViewStyle>;
   confirmText?: ReactNative.StyleProp<ReactNative.TextStyle>;
@@ -35,10 +41,15 @@ export interface Styles {
   selectedItem?: ReactNative.StyleProp<ReactNative.ViewStyle>;
   selectedSubItem?: ReactNative.StyleProp<ReactNative.ViewStyle>;
 }
+
+// replaceable components
 export interface Components {
   NoResults?: (() => void) | JSX.Element;
   NoItems?: (() => void) | JSX.Element;
   Loading?: (() => void) | JSX.Element;
+  Items?: (() => void) | JSX.Element;
+  ItemSeparator?: (() => void) | JSX.Element;
+  ItemSubSeparator?: (() => void) | JSX.Element;
   ItemsFooter?: (() => void) | JSX.Element;
   ModalFooter?: (() => void) | JSX.Element;
   ModalHeader?: (() => void) | JSX.Element;
@@ -52,6 +63,7 @@ export interface Components {
   ChipRemoveIcon?: (() => void) | JSX.Element;
 }
 
+// colors
 export interface Colors {
   primary?: string;
   success?: string;
@@ -68,14 +80,18 @@ export interface Colors {
   disabled?: string;
 }
 
+// all props
 export interface SectionedMultiSelectProps<ItemType> {
   single?: boolean;
   singleShouldSubmit?: boolean;
+  singleShowsChip?: boolean;
   selectedItems?: any[];
-  items?: ItemType[];
+  items: ItemType[];
   displayKey?: string;
   uniqueKey: string;
   subKey?: string;
+  childItemId: () => void;
+  itemId: () => void;
   iconNames?: {
     close: string;
     cancel: string;
@@ -84,7 +100,7 @@ export interface SectionedMultiSelectProps<ItemType> {
     arrowDown: string;
     arrowUp:string;
   };
-  onSelectedItemsChange: (action: object) => (dispatch: () => void, getState: () => void) => void;
+  onSelectedItemsChange?: (action: object) => (getState: () => void, dispatch: () => void) => void;
   showDropDowns?: boolean;
   showChips?: boolean;
   readOnlyHeadings?: boolean;
@@ -111,7 +127,7 @@ export interface SectionedMultiSelectProps<ItemType> {
   parentsToggleChildren?: boolean;
   parentsToggleChildrenOnly?: boolean;
   parentsHighlightChildren?: boolean;
-  onSelectedItemObjectsChange?: (items: ItemType[]) => void;
+  onSelectedItemObjectsChange?: () => void;
   itemNumberOfLines?: number;
   selectLabelNumberOfLines?: number;
   showCancelButton?: boolean;
@@ -124,7 +140,7 @@ export interface SectionedMultiSelectProps<ItemType> {
   animateDropDowns?: boolean;
   customLayoutAnimation?: object;
   filterItems?: (searchTerm: string) => void;
-  onToggleSelector?: (selected: boolean) => void;
+  onToggleSelect?: (selected: boolean) => void;
   chipsPosition?: 'top' | 'bottom';
   autoFocus?: boolean;
   iconKey?: string;
@@ -140,7 +156,8 @@ export default class SectionedMultiSelect<ItemType> extends React.Component<
   SectionedMultiSelectProps<ItemType>
 > {}
 
-export interface UseSectionedMultiSelect extends SectionedMultiSelectProps<ItemType> {
+// props + helper functions + state
+export interface UseSMSContext extends SectionedMultiSelectProps<ItemType> {
   _toggleSelect: () => void;
   _toggleChildren: () => void;
   _closeSelect: () => void;
@@ -155,18 +172,21 @@ export interface UseSectionedMultiSelect extends SectionedMultiSelectProps<ItemT
   _findItem: () => void;
   _filterItems: () => void;
   _checkIsParent: () => void;
-  getModalProps: () => void;
-  setSearchTerm: () => void;
   _renderItemFlatList: () => void;
   _renderSeparator: () => void;
   _renderFooter: () => void;
+  getModalProps: () => void;
+  setSearchTerm: () => void;
   Icon: (() => void) | JSX.Element;
-
-  selectedItems: ItemType[];
-  //state
-  searchTerm: string,
-  selectIsVisible: boolean,
-  // items to render
-  renderItems: [],
+  selectedItems: any[];
+  searchTerm: string;
+  selectIsVisible: boolean;
+  renderItems: [];
 }
+
+export function useSMSContext(): UseSMSContext;
+
+export interface UseSectionedMultiSelect extends UseSMSContext {
+}
+
 export function useSectionedMultiSelect({}: SectionedMultiSelectProps<ItemType>): UseSectionedMultiSelect;
