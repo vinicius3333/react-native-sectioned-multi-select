@@ -3,9 +3,8 @@ import {Text, View, ScrollView, TouchableOpacity} from 'react-native';
 import {
   useSectionedMultiSelect,
   SMSContext,
-  Chip,
-  Items
-} from 'react-native-sectioned-multi-select/lib/sectioned-multi-select';
+  useSMSContext
+} from 'react-native-sectioned-multi-select';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const UseSMSExample = () => {
@@ -33,7 +32,6 @@ const UseSMSExample = () => {
     // setSelectedItems1(items);
     console.log('selected items changee!', items);
   };
-
   const SMSState = useSectionedMultiSelect({
     items,
     displayKey: 'title',

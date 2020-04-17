@@ -14,18 +14,34 @@ import {
   Dimensions,
   LayoutAnimation,
   FlatList,
-  TouchableHighlightBase
+  TouchableHighlightBase,
+  CheckBox
 } from 'react-native';
-import SectionedMultiSelect, {
-  useSectionedMultiSelect,
-  SMSContext,
-  Chip,
-  Items
-} from 'react-native-sectioned-multi-select/lib/sectioned-multi-select';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+
+import Icon from 'react-native-vector-icons/dist/MaterialCommunityIcons';
+import iconFont from 'react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf';
 import ContextRenderFunctionExample from './components/ContextRenderFunctionExample';
 import ComponentExample from './components/ComponentExample';
 
+if (Platform.OS === 'web') {
+  // Icons support for react-native-web
+  // Generate required css
+  const iconFontStyles = `@font-face {
+    src: url(${iconFont});
+    font-family: Material Design Icons;
+  }`;
+
+  // Create stylesheet
+  const style = document.createElement('style');
+  style.type = 'text/css';
+  if (style.styleSheet) {
+    style.styleSheet.cssText = iconFontStyles;
+  } else {
+    style.appendChild(document.createTextNode(iconFontStyles));
+  }
+  // Inject stylesheet
+  document.head.appendChild(style);
+}
 // Sorry for the mess
 
 const items = [
@@ -33,6 +49,7 @@ const items = [
     title: 'Burgers',
     id: 2,
     icon: 'hamburger',
+    description: 'A classic or something a little different?',
 
     children: [
       {
@@ -227,7 +244,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold'
   },
   switch: {
-    marginBottom: 20,
+    marginBottom: 10,
     flexDirection: 'row',
     alignItems: 'flex-end',
     justifyContent: 'space-between'
@@ -251,17 +268,24 @@ const Loading = props =>
 
 const Toggle = props => (
   <TouchableWithoutFeedback
-    // hitSlop={{top: 10, bottom: 10}}
     onPress={() => props.onPress(!props.val)}
     disabled={props.disabled}>
     <View style={styles.switch}>
       <Text style={styles.label}>{props.name}</Text>
-      <Switch
-        trackColor={tintColor}
-        onValueChange={v => props.onPress(v)}
-        value={props.val}
-        disabled={props.disabled}
-      />
+      {Platform.OS === 'ios' ? (
+        <Switch
+          trackColor={tintColor}
+          onValueChange={v => props.onPress(v)}
+          value={props.val}
+          disabled={props.disabled}
+        />
+      ) : (
+        <CheckBox
+          onValueChange={v => props.onPress(v)}
+          value={props.val}
+          disabled={props.disabled}
+        />
+      )}
     </View>
   </TouchableWithoutFeedback>
 );
@@ -362,64 +386,66 @@ const customIconRenderer = ({name, size = 18, style}) => {
 
 let date = new Date();
 
-const SMSStyles = StyleSheet.create({
-  scrollView: {
-    paddingHorizontal: 0
-  },
-  item: {
-    paddingHorizontal: 20
-  },
-  itemWrapper: {
-    borderColor: '#dadada',
-    borderBottomWidth: 1
-  },
-  subItem: {
-    paddingHorizontal: 20
-  },
-  subItemText: {
-    fontSize: 20
-  },
-  parentChipText: {
-    fontWeight: 'bold'
-  },
-  removeAllChipContainer: {
-    backgroundColor: 'grey'
-  },
-  removeAllChipText: {
-    color: 'white'
-  },
-  selectToggle: {
-    borderWidth: 1,
-    borderRadius: 8,
-    borderColor: 'silver',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    marginBottom: 16
-  },
-  selectedSubItem: {
-    backgroundColor: '#333'
-  },
-  selectedSubItemText: {
-    color: '#dadada'
-  },
-  itemIcon: {
-    marginRight: 6
-  },
-  separator: {height: 0},
-  highlightedSubItem: {
-    backgroundColor: 'white'
-  }
-});
+// const SMSStyles = StyleSheet.create({
+//   scrollView: {
+//     paddingHorizontal: 0
+//   },
+//   item: {
+//     paddingHorizontal: 20
+//   },
+//   itemWrapper: {
+//     borderColor: '#dadada',
+//     borderBottomWidth: 1
+//   },
+//   subItem: {
+//     paddingHorizontal: 20
+//   },
+//   subItemText: {
+//     fontSize: 20
+//   },
+//   parentChipText: {
+//     fontWeight: 'bold'
+//   },
+//   removeAllChipContainer: {
+//     backgroundColor: 'grey'
+//   },
+//   removeAllChipText: {
+//     color: 'white'
+//   },
+//   selectToggle: {
+//     borderWidth: 1,
+//     borderRadius: 8,
+//     borderColor: 'silver',
+//     paddingHorizontal: 16,
+//     paddingVertical: 8,
+//     marginBottom: 16
+//   },
+//   selectedSubItem: {
+//     backgroundColor: '#333'
+//   },
+//   selectedSubItemText: {
+//     color: '#dadada'
+//   },
+//   itemIcon: {
+//     marginRight: 6
+//   },
+//   separator: {height: 0},
+//   highlightedSubItem: {
+//     backgroundColor: 'white'
+//   }
+// });
 class App extends React.Component {
   constructor() {
     super();
     // state is spread to props of
     // sectioned multi select components
     this.state = {
+      items: [],
       iconRenderer: Icon,
-      items: null,
       single: false,
       singleShouldSubmit: true,
+      singleShowsChip: true,
+
       loading: false,
       // selectedItems: [],
       selectedItemObjects: [],
@@ -432,7 +458,7 @@ class App extends React.Component {
       parentsToggleChildrenOnly: true,
       hideChipRemove: false,
       showRemoveAll: true,
-      debug: true,
+      debug: false,
       hasErrored: false
     };
     this.termId = 100;
@@ -535,9 +561,9 @@ class App extends React.Component {
 
   pretendToLoad = () => {
     this.setState({loading: true});
-    setTimeout(() => {
-      this.setState({loading: false, items});
-    }, 0);
+    // setTimeout(() => {
+    this.setState({loading: false, items});
+    // }, 1000);
   };
 
   // testing a custom filtering function that ignores accents
@@ -766,13 +792,13 @@ class App extends React.Component {
       <ScrollView contentContainerStyle={styles.container}>
         <ComponentExample
           {...this.state}
-          styles={SMSStyles}
-          onSelectedItemsChange={this.onSelectedItemsChange}
+          // styles={SMSStyles}
+          // onSelectedItemsChange={this.onSelectedItemsChange}
         />
         <ContextRenderFunctionExample
           {...this.state}
-          styles={SMSStyles}
-          onSelectedItemsChange={this.onSelectedItemsChange}
+          // styles={SMSStyles}
+          // onSelectedItemsChange={this.onSelectedItemsChange}
         />
         <View>
           <View style={styles.border}>
@@ -781,7 +807,25 @@ class App extends React.Component {
           <Toggle
             name="Single"
             onPress={() => this.onSwitchToggle('single')}
+            disabled={
+              this.state.parentsToggleChildren ||
+              this.state.parentsToggleChildrenOnly
+            }
             val={this.state.single}
+          />
+          <Toggle
+            name="Single should Submit"
+            onPress={() => this.onSwitchToggle('singleShouldSubmit')}
+            val={this.state.singleShouldSubmit}
+          />
+          <Toggle
+            name="Single shows chip"
+            onPress={() => this.onSwitchToggle('singleShowsChip')}
+            disabled={
+              this.state.parentsToggleChildren ||
+              this.state.parentsToggleChildrenOnly
+            }
+            val={this.state.singleShowsChip}
           />
           <Toggle
             name="Read only headings"
