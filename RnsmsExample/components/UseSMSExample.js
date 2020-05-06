@@ -2,12 +2,11 @@ import * as React from 'react';
 import {Text, View, ScrollView, TouchableOpacity} from 'react-native';
 import {
   useSectionedMultiSelect,
-  SMSContext,
-  useSMSContext
+  SMSContext
 } from 'react-native-sectioned-multi-select';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Icon from 'react-native-vector-icons/dist/MaterialCommunityIcons';
 
-const UseSMSExample = () => {
+const UseSMSExample = props => {
   const [state, _setState] = React.useState({
     loading: false,
     selectedItems2: [],
@@ -22,88 +21,58 @@ const UseSMSExample = () => {
     hasErrored: false
   });
   const setState = newState => _setState({...state, ...newState});
-  const termId = 100;
-  const maxItems = 5;
-  const onSelectedItemObjectsChange = objs =>
-    setState({selectedItemObjects: objs});
-  const [selectedItems1, setSelectedItems1] = React.useState([]);
 
-  const onSelectedItemsChange = items => {
-    // setSelectedItems1(items);
-    console.log('selected items changee!', items);
-  };
   const SMSState = useSectionedMultiSelect({
-    items,
+    ...props,
+    initialSelectedItems: [],
+    itemId: item => `item--${item.title}`,
+    childItemId: item => `child--${item.title}`,
+    getChildren: item => item.children,
+    subKey: 'children',
     displayKey: 'title',
     iconKey: 'icon',
-    subKey: 'children',
-    childItemId: item => item.title,
-    onSelectedItemsChange: onSelectedItemsChange,
-    modalWithTouchable: true,
-    modalWithSafeAreaView: true,
     iconRenderer: Icon,
-    selectedItems: selectedItems1,
-    showDropDowns: state.showDropDowns,
-    single: state.single,
-    readOnlyHeadings: state.readOnlyHeadings,
-    expandDropDowns: state.expandDropDowns,
-    parentsHighlightAllChildren: state.parentsHighlightAllChildren,
-    parentsSelectAllChildren: state.parentsSelectAllChildren,
-    hideChipRemove: state.hideChipRemove,
     iconNames: {
       search: 'magnify',
       close: 'close',
+      cancel: 'cancel',
       checkMark: 'check',
       arrowDown: 'chevron-down',
       arrowUp: 'chevron-up'
-    }
+    },
+    modalWithSafeAreaView: true
   });
+
   const {
-    // selectedItems,
-    Search: SearchBox,
-    SelectModal,
-    renderItems,
-    _renderControls: Controls,
-    Items,
-    _renderSelector: Selector,
-    _renderChips: Chips,
-    _renderHeader: Header,
     _selectAllItems,
     _removeAllItems,
-    _toggleItem,
-    _checkIsParent,
-    _findItem,
-    _displaySelectedItems,
-    subKey,
-    displayKey,
     selectedItems,
-    getModalProps,
-    colors
+    colors,
+    components: {
+      ModalHeader,
+      SelectModal,
+      Search,
+      ModalControls,
+      Selector,
+      Chip,
+      Chips,
+      Items
+    }
   } = SMSState;
-
-  const onSwitchToggle = k => {
-    const v = !state[k];
-    setState({[k]: v});
-  };
 
   return (
     <SMSContext.Provider value={SMSState}>
       <Chips />
       <SelectModal>
         <React.Fragment>
-          <Header />
-          <SearchBox />
+          <ModalHeader />
+          <Search />
           <View
             style={{
               height: 50,
               borderBottomWidth: 1,
               borderBottomColor: 'lightgrey'
             }}>
-            {/*
-                      showing the chips inside the SmsModal
-                      in a horizontal ScrollView,
-                      with a select/remove all button
-                    */}
             <ScrollView
               horizontal
               contentContainerStyle={{
@@ -121,11 +90,12 @@ const UseSMSExample = () => {
                   flexDirection: 'row',
                   alignItems: 'center',
                   alignSelf: 'center',
-                  flex: 1,
-                  backgroundColor: colors.primary
+                  backgroundColor: colors.success
                 }}
-                onPress={
-                  selectedItems.length ? _removeAllItems : _selectAllItems
+                onPress={() =>
+                  selectedItems.length
+                    ? _removeAllItems('modal-horizontal-chips')
+                    : _selectAllItems('modal-horizontal-chips')
                 }>
                 <Text style={{color: 'white', fontWeight: 'bold'}}>
                   {selectedItems.length ? 'Remove' : 'Select'} all
@@ -134,31 +104,14 @@ const UseSMSExample = () => {
 
               <View style={{flex: 1, flexDirection: 'row'}}>
                 {selectedItems.map(id => {
-                  const item = _findItem(id);
-                  console.log(item, id);
-                  if (!item || !item[displayKey]) return null;
-                  // if (item[subKey] && item[subKey].length) return null;
-                  return customChip({
-                    id: id,
-                    text: item[displayKey],
-                    onPress: () => _toggleItem(item)
-                  });
+                  <Chip id={id} />;
                 })}
               </View>
             </ScrollView>
           </View>
 
-          <Items
-            flatListProps={{
-              initialNumToRender: 2
-              // renderItem: ({ item }) => (
-              //   <TouchableOpacity style={{padding: 5}} onPress={() => _toggleItem(item, true)}>
-              //     <Text>{item.title}</Text>
-              //   </TouchableOpacity>
-              // ),
-            }}
-          />
-          <Controls />
+          <Items />
+          <ModalControls />
         </React.Fragment>
       </SelectModal>
       <Selector />
