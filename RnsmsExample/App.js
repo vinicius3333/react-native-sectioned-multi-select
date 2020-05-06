@@ -22,7 +22,7 @@ import Icon from 'react-native-vector-icons/dist/MaterialCommunityIcons';
 import iconFont from 'react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf';
 import ContextRenderFunctionExample from './components/ContextRenderFunctionExample';
 import ComponentExample from './components/ComponentExample';
-
+import UseSMSExample from './components/UseSMSExample';
 if (Platform.OS === 'web') {
   // Icons support for react-native-web
   // Generate required css
@@ -790,12 +790,17 @@ class App extends React.Component {
   render() {
     return (
       <ScrollView contentContainerStyle={styles.container}>
-        <ComponentExample
+        {/* <ComponentExample
           {...this.state}
           // styles={SMSStyles}
           // onSelectedItemsChange={this.onSelectedItemsChange}
         />
         <ContextRenderFunctionExample
+          {...this.state}
+          // styles={SMSStyles}
+          // onSelectedItemsChange={this.onSelectedItemsChange}
+        /> */}
+        <UseSMSExample
           {...this.state}
           // styles={SMSStyles}
           // onSelectedItemsChange={this.onSelectedItemsChange}
