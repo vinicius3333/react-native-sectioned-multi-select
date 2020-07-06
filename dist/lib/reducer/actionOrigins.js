@@ -1,0 +1,1 @@
+Object.defineProperty(exports,"__esModule",{value:true});exports.CHIPS_REMOVE_ALL=exports.CHIP=exports.CHILD_ITEM=exports.PARENT_ITEM=void 0;var PARENT_ITEM='parent-item';exports.PARENT_ITEM=PARENT_ITEM;var CHILD_ITEM='child-item';exports.CHILD_ITEM=CHILD_ITEM;var CHIP='chip';exports.CHIP=CHIP;var CHIPS_REMOVE_ALL='chips-remove-all';exports.CHIPS_REMOVE_ALL=CHIPS_REMOVE_ALL;
