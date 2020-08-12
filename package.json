@@ -47,9 +47,12 @@
   ],
   "license": "MIT",
   "main": "dist/index.js",
+  "dependencies": {
+    "prop-types": "^15.6.0"
+  },
   "peerDependencies": {
-    "prop-types": "^15.6.0",
-    "react-native-vector-icons": "^4.1.1"
+    "react": "*",
+    "react-native": "*"
   },
   "repository": {
     "type": "git",
