@@ -16,9 +16,15 @@ import {
   Dimensions
 } from 'react-native';
 import SectionedMultiSelect from 'react-native-sectioned-multi-select';
-import {PARENT_ITEM} from 'react-native-sectioned-multi-select/lib/reducer/actionOrigins';
+import {ItemSeparator} from 'react-native-sectioned-multi-select';
 import Icon from 'react-native-vector-icons/dist/MaterialCommunityIcons';
+// web modal is a bit broken with react-native-web 0.12 +
+// https://github.com/necolas/react-native-web/issues/1665#issuecomment-657161657
 import WebModal from 'modal-enhanced-react-native-web';
+
+// this example shows using the component as a render function
+// which returns all the components and helpers
+// so you can build the layout how you like
 
 let date = new Date();
 if (
@@ -193,76 +199,13 @@ class ContextRenderFunctionExample extends React.Component {
           onToggleSelect={() =>
             LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
           }
-          // selectedItems={this.state.selectedItems}
           initialSelectedItems={this.state.currentSelection}
-          // styles={{
-          //   // chipText: {
-          //   //   maxWidth: Dimensions.get('screen').width - 90,
-          //   // },
-          //   // itemText: {
-          //   //   color: this.props.selectedItems.length ? 'black' : 'lightgrey'
-          //   // },
-          //   scrollView: {
-          //     paddingHorizontal: 0
-          //   },
-          //   item: {
-          //     paddingHorizontal: 20
-          //   },
-          //   subItem: {
-          //     paddingHorizontal: 10
-          //   },
-          //   parentChipText: {
-          //     fontWeight: 'bold'
-          //   },
-          //   removeAllChipContainer: {
-          //     backgroundColor: 'purple',
-          //     borderWidth: 0
-          //   },
-          //   removeAllChipText: {
-          //     color: 'white'
-          //   },
-          //   itemIcon: {
-          //     fontSize: 24,
-          //     marginRight: 8,
-          //     color: 'silver'
-          //   },
-          //   selectToggle: {
-          //     borderWidth: 0.5,
-          //     borderRadius: 4,
-          //     borderColor: 'silver',
-          //     paddingHorizontal: 16,
-          //     paddingVertical: 8
-          //   },
-          //   selectedItem: {
-          //     backgroundColor: undefined
-          //   },
-
-          //   selectedItemText: {
-          //     color: 'black',
-          //     fontWeight: 'bold'
-          //   },
-          //   selectedSubItemText: {
-          //     color: 'black',
-          //     fontWeight: 'bold'
-          //   },
-          //   selectedIcon: {
-          //     color: 'purple'
-          //   },
-          //   highlightedIcon: {
-          //     color: 'silver'
-          //   },
-          //   itemIconSelected: {
-          //     color: 'purple'
-          //   },
-
-          //   // subItemText: {
-          //   //   color: this.props.selectedItems.length ? 'black' : 'lightgrey'
-          //   // },
-          //   selectedSubItem: {
-          //     // backgroundColor: '#dadada'
-          //   }
-          // }}
           styles={{
+            separator: () => ({
+              height: 1,
+              backgroundColor: 'silver',
+              marginVertical: 6
+            }),
             item: (styles, {itemSelected}) => {
               const ani = new Animated.Value(0);
               Animated.timing(ani, {
@@ -311,9 +254,6 @@ class ContextRenderFunctionExample extends React.Component {
                 {this.state.message}
               </Text>
             )
-            // ItemSeparator: () => (
-            //   <ItemSeparator style={{height: 2, backgroundColor: 'yellow'}} />
-            // )
           }}
           showCancelButton
           // cancelIconComponent={
@@ -328,12 +268,8 @@ class ContextRenderFunctionExample extends React.Component {
                 overflow: 'hidden'
               },
               animationType: 'slide',
-              // backdropOpacity: 0.5,
               transparent: true,
-              // propagateSwipe: true,
               hasBackdrop: true
-              // deviceWidth: 100,
-              // deviceHeight: 100
             }
           }>
           {ctx => {
@@ -423,10 +359,6 @@ class ContextRenderFunctionExample extends React.Component {
                           flex: 1,
                           backgroundColor: 'white',
                           width: '100%',
-                          // position: 'absolute',
-                          // overflow: 'hidden',
-                          // top: 0,
-                          // height: Dimensions.get('screen').height * 0.66,
                           borderWidth: 1,
                           borderColor: '#dadada',
                           borderBottomRightRadius: 2,
@@ -440,10 +372,10 @@ class ContextRenderFunctionExample extends React.Component {
                             borderBottomColor: 'lightgrey'
                           }}>
                           {/*
-                      showing the chips inside the SelectModal
-                      in a horizontal ScrollView,
-                      with a select/remove all button
-                    */}
+                            showing the chips inside the SelectModal
+                            in a horizontal ScrollView,
+                            with a select/remove all button
+                          */}
                           <ScrollView
                             horizontal
                             contentContainerStyle={{

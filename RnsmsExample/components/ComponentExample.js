@@ -1,11 +1,10 @@
 import * as React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
 import SectionedMultiSelect from 'react-native-sectioned-multi-select';
 
+// this example outlines using SectionedMultiSelect as a component
+// this is the classic/legacy implementation, everything is configured via props
 class ComponentExample extends React.Component {
   render() {
-    console.log('comp props]', this.props);
-
     return (
       <SectionedMultiSelect
         itemId={item => `item--${item.title}`}

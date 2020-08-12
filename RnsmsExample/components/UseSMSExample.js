@@ -2,26 +2,16 @@ import * as React from 'react';
 import {Text, View, ScrollView, TouchableOpacity} from 'react-native';
 import {
   useSectionedMultiSelect,
-  SMSContext
+  SMSProvider
 } from 'react-native-sectioned-multi-select';
 import Icon from 'react-native-vector-icons/dist/MaterialCommunityIcons';
 
-const UseSMSExample = props => {
-  const [state, _setState] = React.useState({
-    loading: false,
-    selectedItems2: [],
-    selectedItemObjects: [],
-    currentItems: [],
-    showDropDowns: false,
-    single: false,
-    readOnlyHeadings: false,
-    parentsHighlightAllChildren: false,
-    parentsSelectAllChildren: false,
-    hideChipRemove: false,
-    hasErrored: false
-  });
-  const setState = newState => _setState({...state, ...newState});
+// this example shows the usage of the useSectionedMultiSelect hook
+// all the settings are passed to the useSectionedMultiSelect function
+// and the components/helpers are returned
+// you need to use the SMSProvider for providing context
 
+const UseSMSExample = props => {
   const SMSState = useSectionedMultiSelect({
     ...props,
     initialSelectedItems: [],
@@ -61,7 +51,7 @@ const UseSMSExample = props => {
   } = SMSState;
 
   return (
-    <SMSContext.Provider value={SMSState}>
+    <SMSProvider value={SMSState}>
       <Chips />
       <SelectModal>
         <React.Fragment>
@@ -109,13 +99,12 @@ const UseSMSExample = props => {
               </View>
             </ScrollView>
           </View>
-
           <Items />
           <ModalControls />
         </React.Fragment>
       </SelectModal>
       <Selector />
-    </SMSContext.Provider>
+    </SMSProvider>
   );
 };
 

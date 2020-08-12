@@ -458,7 +458,7 @@ class App extends React.Component {
       parentsToggleChildrenOnly: true,
       hideChipRemove: false,
       showRemoveAll: true,
-      debug: false,
+      debug: true,
       hasErrored: false
     };
     this.termId = 100;
@@ -790,21 +790,9 @@ class App extends React.Component {
   render() {
     return (
       <ScrollView contentContainerStyle={styles.container}>
-        {/* <ComponentExample
-          {...this.state}
-          // styles={SMSStyles}
-          // onSelectedItemsChange={this.onSelectedItemsChange}
-        />
-        <ContextRenderFunctionExample
-          {...this.state}
-          // styles={SMSStyles}
-          // onSelectedItemsChange={this.onSelectedItemsChange}
-        /> */}
-        <UseSMSExample
-          {...this.state}
-          // styles={SMSStyles}
-          // onSelectedItemsChange={this.onSelectedItemsChange}
-        />
+        {/* <ComponentExample {...this.state} /> */}
+        <ContextRenderFunctionExample {...this.state} />
+        {/* <UseSMSExample {...this.state} /> */}
         <View>
           <View style={styles.border}>
             <Text style={styles.heading}>Settings</Text>
